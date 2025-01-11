@@ -1,0 +1,119 @@
+@font-face {
+    font-family: 'Roboto', sans-serif;
+    src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+  }
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    background-color: #090C11;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .form-box {
+    background-color: #141B23;
+    padding: 20px 15px 20px 15px;
+    border-radius: 6px;
+    width: 300px;
+    border: 1px solid #3E424B;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  }
+  
+  .form-box label {
+    display: block;
+    font-size: 16px;
+    padding-left: 4px;
+    padding-bottom: 10px;
+  }
+  
+  .form-box input[type="text"],
+  .form-box input[type="password"],
+  .form-box input[type="email"] {
+    width: 93%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #0D1017;
+    border: 1px solid #3E424B;
+    border-radius: 6px;
+    color: #fff;
+  }
+  
+  .form-box input::placeholder {
+    color: #888;
+  }
+  
+  .form-box .checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  
+  .form-box .checkbox input {
+    margin-right: 10px;
+    display: none;
+  }
+  
+  .form-box .checkbox label {
+    font-size: 15px;
+    color: #2F538D;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    padding-left: 47px;
+  }
+
+  .form-box .checkbox label::before {
+    content: '';
+    position: absolute;
+    left: 8%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: url('Check_box.png') no-repeat center center;
+    background-size: contain;
+  }
+
+  .form-box .checkbox label::after {
+    content: '';
+    position: absolute;
+    left: 9%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: url('Vector_1.png') no-repeat center center;
+    background-size: contain;
+    opacity: 0;
+  }
+
+  .form-box .checkbox input[type="checkbox"]:checked + label::after {
+    opacity: 1;
+  }
+  
+  .form-box .btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #1C63F0;
+    border: none;
+    border-radius: 9px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .form-box .btn:hover {
+    background-color: #0056b3;
+  }
+  
