@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: notif-srv-depl
+spec:
+    replicas: 1
+    selector: 
+        matchLabels:
+            app: notif-srv
+    template: 
+        metadata: 
+            labels: 
+                app: notif-srv
+        spec: 
+            containers:
+              - name: notif-srv
+                image : icykcypher/notif-srv:latest
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: notif-srv-clusterip-srv
+spec:  
+    type: ClusterIP
+    selector: 
+        app: notif-srv
+    ports:
+        - name: notif-srv
+          protocol: TCP
+          port: 32275
+          targetPort: 8080

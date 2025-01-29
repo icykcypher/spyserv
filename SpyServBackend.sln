@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\UserService.csproj", "{F2EAD2FF-EE03-47D4-BDFF-4CAF11FE0C2E}"
 EndProject
@@ -10,6 +10,20 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "NotificationService\NotificationService.csproj", "{1E7E8806-05D0-4F35-9C40-D93B3C9C045D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "K8S", "K8S", "{35957D02-0489-42D7-99D0-D41975ED7239}"
+	ProjectSection(SolutionItems) = preProject
+		nginx-configmap.yaml = nginx-configmap.yaml
+		monitor-srv-delp.yaml = monitor-srv-delp.yaml
+		nginx-depl.yaml = nginx-depl.yaml
+		nginx-service.yaml = nginx-service.yaml
+		notif-srv-delp.yaml = notif-srv-delp.yaml
+		postgres-configmap.yaml = postgres-configmap.yaml
+		postgres-pv.yaml = postgres-pv.yaml
+		postgres-pvc.yaml = postgres-pvc.yaml
+		postgres-secret.yaml = postgres-secret.yaml
+		postgres-service.yaml = postgres-service.yaml
+		postgres-statefulset.yaml = postgres-statefulset.yaml
+		user-srv-delp.yaml = user-srv-delp.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

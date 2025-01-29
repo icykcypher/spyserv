@@ -8,9 +8,9 @@ namespace UserService.StorageRepositories
     public class UserStorageRepository : IUserStorageRepository
     {
         private readonly IMapper _mapper;
-        private readonly AuthenticationDbContext _dbContext;
+        private readonly UserDbContext _dbContext;
 
-        public UserStorageRepository(AuthenticationDbContext _dbContext, IMapper _mapper)
+        public UserStorageRepository(UserDbContext _dbContext, IMapper _mapper)
         {
             this._dbContext = _dbContext;
             this._mapper = _mapper;

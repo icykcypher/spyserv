@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UserService.Data
 {
-    public class AuthenticationDbContext(
-       DbContextOptions<AuthenticationDbContext> options,
+    public class UserDbContext(
+       DbContextOptions<UserDbContext> options,
        IOptions<AuthorizationOptions> authOptions) : DbContext(options)
     {
         private readonly IOptions<AuthorizationOptions> _authOptions = authOptions;
@@ -31,7 +31,7 @@ namespace UserService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AuthenticationDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserDbContext).Assembly);
 
             modelBuilder.ApplyConfiguration(new RolePermissionConfiguration(_authOptions.Value));
         }

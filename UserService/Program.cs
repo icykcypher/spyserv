@@ -36,7 +36,7 @@ namespace UserService
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
             builder.Services.Configure<Configurations.AuthorizationOptions>(builder.Configuration.GetSection(nameof(Configurations.AuthorizationOptions)));
 
-            builder.Services.AddDbContext<AuthenticationDbContext>(options =>
+            builder.Services.AddDbContext<UserDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("authentication-db")));
 
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
