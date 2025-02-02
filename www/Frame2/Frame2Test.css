@@ -1,0 +1,56 @@
+/* Стилі для бокового меню */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #1a1a1a;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .sidebar-nav {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-nav li {
+    margin-bottom: 20px;
+  }
+  
+  .sidebar-nav a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 18px;
+  }
+  
+  .sidebar-nav a:hover {
+    color: #007bff;
+  }
+  
+  /* Кнопка для відкриття/закриття меню */
+  .sidebar-toggle {
+    position: fixed;
+    top: 20px;
+    left: 10px;
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    transition: left 0.3s ease;
+  }
+  
+  .sidebar.open ~ .sidebar-toggle {
+    left: 260px; /* Переміщення разом із меню */
+    z-index: 999; /* Менший z-index, щоб кнопка була позаду меню */
+  }
+  
+  /* Інші стилі залишаються незмінними */
+  

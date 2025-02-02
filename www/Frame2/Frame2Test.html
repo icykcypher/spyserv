@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard with Sidebar</title>
+  <link rel="stylesheet" href="Frame2Test.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Бокове меню -->
+    <div class="sidebar" id="sidebar">
+      <ul class="sidebar-nav">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="#">Settings</a></li>
+        <li><a href="#">Profile</a></li>
+      </ul>
+    </div>
+
+    <!-- Кнопка для бокового меню -->
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+
+    <!-- Навігаційний бар -->
+    <nav class="navbar">
+      <a href="#" class="nav-link">Get started</a>
+      <a href="#" class="nav-link">Lorem ipsum</a>
+      <a href="#" class="nav-link">Lorem ipsum</a>
+    </nav>
+
+    <!-- Основний контент -->
+    <div class="main-content">
+      <!-- Таблиця -->
+      <div class="table-container">
+        <div class="actions">
+          <button class="add-button">Add</button>
+          <input type="text" class="search-bar" placeholder="Search">
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>CPU (%)</th>
+              <th>Memory (%)</th>
+              <th>Last started</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td><span class="status-circle green"></span> Lorem ipsum</td>
+              <td>0%</td>
+              <td>0%</td>
+              <td>Lorem ipsum</td>
+              <td><span class="icon">🗑️</span><span class="icon">▶️</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Графіки -->
+      <div class="charts-container">
+        <div class="chart">
+          <h4>CPU usage:</h4>
+          <div class="graph"></div>
+        </div>
+        <div class="chart">
+          <h4>Disk read/write:</h4>
+          <div class="graph"></div>
+        </div>
+        <div class="chart">
+          <h4>Memory usage:</h4>
+          <div class="graph"></div>
+        </div>
+        <div class="chart">
+          <h4>Network I/O:</h4>
+          <div class="graph"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+      <p>© 2025 Your Company. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script src="Frame2Test.js"></script>
+</body>
+</html>

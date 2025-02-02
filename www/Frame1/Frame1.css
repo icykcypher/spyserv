@@ -1,0 +1,103 @@
+@font-face {
+    font-family: 'Roboto', sans-serif;
+    src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+  }
+
+/* Загальні стилі */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    width: 100%;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background-color: #0D1017;
+    color: #ffffff;
+    height: 100%;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  /* Навігаційний бар */
+  .navbar {
+    width: 100%;
+    background-color: #141B23;
+    font-size: 18px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .nav-link {
+    color: #ffffff;
+    text-decoration: none;
+    margin: 0 16px;
+  }
+  
+  /* Контент */
+  .content {
+    padding: 20px;
+    padding-top: 4%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-left: 10%;/* Під питанням */
+    margin-right: 10%;/* Під питанням */
+  }
+  
+  /* Елемент списку */
+  .list-item {
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #141B23;
+    padding: 15px 20px;
+    border: 1px solid #333944;
+    color: #ffffff;
+  }
+  
+  .item-text h3 {
+    margin-left: 25px;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  
+  .item-text p {
+    margin-left: 25px;
+    font-size: 14px;
+    color: #556886;
+  }
+  
+  .item-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 25px;
+    font-size: 16px;
+  }
+  
+  .item-status span {
+    font-size: 30px;
+  }
+  
+  /* Статуси */
+  .green span {
+    color: #238636;
+  }
+  
+  .red span {
+    color: #D75E55;
+  }
+  
+  .default span {
+    color: #ffffff;
+  }
+  

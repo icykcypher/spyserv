@@ -1,0 +1,248 @@
+@font-face {
+  font-family: 'Roboto', sans-serif;
+  src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+/* Загальні стилі */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  font-family: 'Roboto', sans-serif;
+  background-color: #0D1017;
+  color: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Навігаційний бар */
+.navbar {
+  width: 100%;
+  background-color: #141B23;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-link {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.nav-link:hover {
+  color: #007bff;
+}
+
+/* Основний контент */
+.main-content {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  gap: 20px;
+  flex-grow: 1;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  margin-left: 0;
+  width: 100%; /* Ширина контенту за замовчуванням */
+}
+
+/* Таблиця */
+.table-container {
+  width: 53%;
+  margin-right: 50px;
+  margin-left: 100px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 13px;
+  margin-bottom: 34px;
+  margin-right: 30%;/*corect*/
+}
+
+.add-button {
+  background-color: #007bff;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-button:hover {
+  background-color: #0056b3;
+}
+
+.search-bar {
+  flex: 1;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 5px;
+  color: #fff;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 5px 10px;
+  text-align: left;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.data-table th {
+  background-color: #0D1017;
+}
+
+.status-circle {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-circle.green {
+  background-color: #00ff00;
+}
+
+.status-circle.red {
+  background-color: #ff0000;
+}
+
+.icon {
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+/* Графіки */
+.charts-container {
+  flex: 3;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 50px;
+  margin-right: 100px;
+  margin-bottom: 50px;
+  margin-top: 70px;
+}
+
+.chart {
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.chart h4 {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.graph {
+  flex-grow: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+}
+
+.graph div {
+  width: 10%;
+  background-color: #007bff;
+}
+
+/* Футер */
+.footer {
+  background-color: #0D1017;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 14px;
+  height: 50px;
+}
+
+.nav-link-footer {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.nav-link-footer:hover {
+  text-decoration: underline;
+}
+
+/* Стилі для бокового меню */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #1a1a1a;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 20px;
+}
+
+.sidebar-nav a {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 18px;
+}
+
+.sidebar-nav a:hover {
+  color: #007bff;
+}
+
+/* Кнопка для відкриття/закриття меню */
+.sidebar-toggle {
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 1001;
+  transition: left 0.3s ease;
+}
+
+.sidebar.open ~ .sidebar-toggle {
+  left: 260px; /* Переміщення разом із меню */
+  z-index: 999; /* Менший z-index, щоб кнопка була позаду меню */
+}
+
+/* Зміна, коли меню відкрите */
+.sidebar.open ~ .main-content {
+  margin-left: 250px; /* Зсуваємо контент праворуч */
+  width: calc(100% - 250px); /* Зменшуємо ширину, щоб вміст залишався повністю видимим */
+}

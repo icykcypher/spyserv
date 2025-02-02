@@ -37,7 +37,6 @@ body, html {
   margin: 0 15px;
   text-decoration: none;
   color: #ffffff;
-  font-weight: bold;
 }
 
 .main-content {
@@ -79,7 +78,7 @@ body, html {
 
 .btn {
   display: inline-block;
-  padding: 20px 35px 25px 40px;
+  padding: 20px 20px 20px 40px;
   margin: 5px;
   font-family: 'Roboto', sans-serif;
   font-size: 48px;
@@ -94,6 +93,12 @@ body, html {
   transition: background-color 0.3s;
   height: 100px;
   width: 260px;
+}
+
+#sign {
+  background-color: #007bff;
+  padding: 20px 20px 20px 48px;
+
 }
 
 .btn:hover {
