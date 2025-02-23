@@ -1,0 +1,22 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "UserService";
+
+import "Protos/role.proto";
+import "Protos/permission.proto";
+
+message RolePermissionsGrpc {
+  string role = 1;
+  repeated string permissions = 2;
+}
+
+message GetRoleRequest { }
+
+service AuthorizationGrpcService {
+  rpc GetRolePermissions (GetRoleRequest) returns (RolePermissionsList);
+}
+
+
+message RolePermissionsList {
+  repeated RolePermissionsGrpc role_permissions = 1;
+}

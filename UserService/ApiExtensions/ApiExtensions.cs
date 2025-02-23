@@ -1,10 +1,10 @@
 ﻿using System.Text;
 using UserService.Model;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
 using UserService.Services.JwtProvider;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using UserService.Services.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UserService.ApiExtensions
 {
@@ -52,22 +52,22 @@ namespace UserService.ApiExtensions
             {
                 options.AddPolicy("AdminPolicy", policy =>
                 {
-                    policy.AddRequirements(new PermissionRequirement(new RoleEntity[]
-                    {
+                    policy.AddRequirements(new PermissionRequirement(
+                    [
                         new RoleEntity { Id = 1, Name = "Read", Permissions = [] },
                         new RoleEntity { Id = 2, Name = "Create", Permissions = [] },
                         new RoleEntity { Id = 3, Name = "Update", Permissions = [] },
                         new RoleEntity { Id = 4, Name = "Delete", Permissions = [] },
-                    }));
+                    ]));
                     policy.RequireClaim("Admin", "true");
                 });
 
                 options.AddPolicy("UserPolicy", policy =>
                 {
-                    policy.AddRequirements(new PermissionRequirement(new RoleEntity[]
-                    {
+                    policy.AddRequirements(new PermissionRequirement(
+                    [
                         new RoleEntity { Id = 1, Name = "Read" }
-                    }));
+                    ]));    
                 });
             });
         }

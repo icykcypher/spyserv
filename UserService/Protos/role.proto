@@ -1,0 +1,23 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "UserService";
+
+message RoleGrpc {
+  int32 id = 1;
+  string name = 2;
+}
+
+service RoleGrpcService {
+  rpc GetRoles (Empty) returns (RoleList);
+  rpc GetRoleById (RoleRequest) returns (RoleGrpc);
+}
+
+message Empty {}
+
+message RoleRequest {
+  int32 id = 1;
+}
+
+message RoleList {
+  repeated RoleGrpc roles = 1;
+}
