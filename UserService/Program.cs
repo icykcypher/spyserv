@@ -9,6 +9,7 @@ using UserService.Services.JwtProvider;
 using UserService.Services.UserService;
 using Microsoft.AspNetCore.CookiePolicy;
 using UserService.Services.PasswordHasher;
+using UserService.SyncDataServices.Grpc;
 
 namespace UserService
 {
@@ -41,6 +42,7 @@ namespace UserService
 
             builder.Services.AddSingleton(Log.Logger);
             builder.Services.AddSingleton<Serilog.Extensions.Hosting.DiagnosticContext>();
+            
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
             builder.Services.Configure<Configurations.AuthorizationOptions>(builder.Configuration.GetSection(nameof(Configurations.AuthorizationOptions)));
 

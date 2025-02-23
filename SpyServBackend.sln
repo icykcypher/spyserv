@@ -11,8 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "Noti
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "K8S", "K8S", "{35957D02-0489-42D7-99D0-D41975ED7239}"
 	ProjectSection(SolutionItems) = preProject
-		nginx-configmap.yaml = nginx-configmap.yaml
 		monitor-srv-delp.yaml = monitor-srv-delp.yaml
+		nginx-configmap.yaml = nginx-configmap.yaml
 		nginx-depl.yaml = nginx-depl.yaml
 		nginx-service.yaml = nginx-service.yaml
 		notif-srv-delp.yaml = notif-srv-delp.yaml
@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "K8S", "K8S", "{35957D02-048
 		postgres-statefulset.yaml = postgres-statefulset.yaml
 		user-srv-delp.yaml = user-srv-delp.yaml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataService", "DataService\DataService.csproj", "{5F20EA53-258B-4408-B562-DB335EBAF687}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,8 +45,15 @@ Global
 		{1E7E8806-05D0-4F35-9C40-D93B3C9C045D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E7E8806-05D0-4F35-9C40-D93B3C9C045D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E7E8806-05D0-4F35-9C40-D93B3C9C045D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F20EA53-258B-4408-B562-DB335EBAF687}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F20EA53-258B-4408-B562-DB335EBAF687}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F20EA53-258B-4408-B562-DB335EBAF687}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F20EA53-258B-4408-B562-DB335EBAF687}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {58535EC7-DC25-45E8-991A-EFB8BB2816EA}
 	EndGlobalSection
 EndGlobal

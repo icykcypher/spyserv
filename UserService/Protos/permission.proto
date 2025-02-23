@@ -2,17 +2,17 @@
 
 option csharp_namespace = "UserService";
 
-message PermissionGrpc {
+import "google/protobuf/empty.proto";
+
+message PermissionGrpcEntity {
   int32 id = 1;
   string name = 2;
 }
 
-message GetPermissionRequest {}
-
-service PermissionGrpcService {
-  rpc GetPermissions (GetPermissionRequest) returns (PermissionList);
+service PermissionGrpc {
+  rpc GetPermissions (google.protobuf.Empty) returns (PermissionList);
 }
 
 message PermissionList {
-  repeated PermissionGrpc permissions = 1;
+  repeated PermissionGrpcEntity permissions = 1;
 }
