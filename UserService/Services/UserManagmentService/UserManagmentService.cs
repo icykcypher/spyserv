@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using UserService.Model;
+using UserService.AsyncDataServices;
 using UserService.StorageRepositories;
 using UserService.Services.JwtProvider;
 using UserService.Services.PasswordHasher;
@@ -9,13 +10,15 @@ namespace UserService.Services.UserService
     public class UserManagmentService : IUserManagmentService
     {
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IUserMessageBusSubscriber _messageBus;
         private readonly IUserStorageRepository _repository;
         private readonly IJwtProvider _jwtProvider;
         private readonly IMapper _mapper;
 
-        public UserManagmentService(IPasswordHasher passwordHasher, IUserStorageRepository repository, IJwtProvider jwtProvider, IMapper mapper)
+        public UserManagmentService(IPasswordHasher passwordHasher, IUserMessageBusSubscriber messageBus,IUserStorageRepository repository, IJwtProvider jwtProvider, IMapper mapper)
         {
             this._passwordHasher = passwordHasher;
+            this._messageBus = messageBus;
             this._repository = repository;
             this._jwtProvider = jwtProvider;
             this._mapper = mapper;
@@ -27,7 +30,7 @@ namespace UserService.Services.UserService
 
             user.PasswordHash = _passwordHasher.Generate(registerUserDto.Password);
 
-            user = await _repository.AddNewUserAsync(user);
+            user.Id = await _messageBus.SendNewUserAsync(user);
 
             if (user is null) throw new InvalidOperationException();
 

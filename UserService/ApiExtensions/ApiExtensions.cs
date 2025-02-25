@@ -1,10 +1,11 @@
 ﻿using System.Text;
 using UserService.Model;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
 using UserService.Services.JwtProvider;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using UserService.Services.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using UserService.Services.RolePermissionProvider;
 
 namespace UserService.ApiExtensions
 {
@@ -48,28 +49,39 @@ namespace UserService.ApiExtensions
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminPolicy", policy =>
-                {
-                    policy.AddRequirements(new PermissionRequirement(new RoleEntity[]
-                    {
-                        new RoleEntity { Id = 1, Name = "Read", Permissions = [] },
-                        new RoleEntity { Id = 2, Name = "Create", Permissions = [] },
-                        new RoleEntity { Id = 3, Name = "Update", Permissions = [] },
-                        new RoleEntity { Id = 4, Name = "Delete", Permissions = [] },
-                    }));
-                    policy.RequireClaim("Admin", "true");
-                });
+            services.AddSingleton<RolePermissionProviderService>();
 
-                options.AddPolicy("UserPolicy", policy =>
+            services.AddScoped<IPermissionService, PermissionService>();
+            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+            services.AddAuthorization(async options =>
+            {
+                var rolePermissions = await GetRolePermissionsFromGrpc(services);
+
+                foreach (var rolePermission in rolePermissions)
                 {
-                    policy.AddRequirements(new PermissionRequirement(new RoleEntity[]
+                    var roleName = rolePermission.Name;
+                    var permissions = rolePermission.Permissions;
+
+                    options.AddPolicy($"{roleName}Policy", policy =>
                     {
-                        new RoleEntity { Id = 1, Name = "Read" }
-                    }));
-                });
+                        policy.AddRequirements(new PermissionRequirement(GetRoleEntities(permissions)));
+                        if (roleName == "Admin") policy.RequireClaim("Admin", "true");
+                    });
+                }
             });
         }
+
+        private static async Task<List<RoleEntity>> GetRolePermissionsFromGrpc(IServiceCollection services)
+        {
+            var serviceProvider = services.BuildServiceProvider();
+            var rolePermissionsProvider = serviceProvider.GetRequiredService<RolePermissionProviderService>();
+            return await rolePermissionsProvider.GetRolePermissionsAsync();
+        }
+
+        private static ICollection<RoleEntity> GetRoleEntities(ICollection<PermissionEntity> permissions)
+            => permissions
+            .SelectMany(p => p.Roles ?? Enumerable.Empty<RoleEntity>())
+            .ToList();
     }
 }

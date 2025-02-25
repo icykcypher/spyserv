@@ -1,5 +1,5 @@
 
-namespace NotificationService
+namespace DataService
 {
     public class Program
     {

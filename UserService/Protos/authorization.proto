@@ -1,0 +1,19 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "UserService";
+
+import "google/protobuf/empty.proto";
+
+message RolePermissionsGrpcEntity {
+  string role = 1;
+  repeated string permissions = 2;
+}
+
+service AuthorizationGrpc {
+  rpc GetRolePermissions (google.protobuf.Empty) returns (RolePermissionsList);
+}
+
+
+message RolePermissionsList {
+  repeated RolePermissionsGrpcEntity role_permissions = 1;
+}

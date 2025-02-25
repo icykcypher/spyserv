@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: user-srv-depl
+spec:
+    replicas: 1
+    selector: 
+        matchLabels:
+            app: user-srv
+    template: 
+        metadata: 
+            labels: 
+                app: user-srv
+        spec: 
+            containers:
+              - name: user-srv
+                image : icykcypher/user-srv:latest
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: user-srv-clusterip-srv
+spec:  
+    type: ClusterIP
+    selector: 
+        app: user-srv
+    ports:
+        - name: user-srv
+          protocol: TCP
+          port: 54321
+          targetPort: 8080

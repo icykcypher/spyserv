@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using UserService.Model;
+﻿using UserService.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UserService.Services.Authentication
 {
-    public class PermissionRequirement : IAuthorizationRequirement
+    public class PermissionRequirement(ICollection<RoleEntity> permissions) : IAuthorizationRequirement
     {
-        public PermissionRequirement(ICollection<RoleEntity> permissions)
-        {
-            this.Permissions = permissions;
-        }
-
-        public ICollection<RoleEntity> Permissions { get; set; } = [];
+        public ICollection<RoleEntity> Permissions { get; set; } = permissions;
     }
 }

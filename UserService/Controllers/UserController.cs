@@ -8,40 +8,20 @@ using Microsoft.AspNetCore.Authorization;
 namespace UserService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthenticationController : ControllerBase
+    [Route("api/u")]
+    public class UserController : ControllerBase
     {
-        private readonly IUserStorageRepository _userStorageRepository;
-        private readonly IUserManagmentService _userService;
         private readonly IMapper _mapper;
+        private readonly IUserManagmentService _userService;
+        private readonly ILogger<UserController> _logger;
+        private readonly IUserStorageRepository _userStorageRepository;
 
-        public AuthenticationController(IUserStorageRepository userStorageRepository, IUserManagmentService userService, IMapper mapper)
+        public UserController(IUserStorageRepository userStorageRepository, IUserManagmentService userService, IMapper mapper, ILogger<UserController> logger)
         {
             this._userStorageRepository = userStorageRepository;
             this._userService = userService;
             this._mapper = mapper;
-        }
-
-        [HttpGet]
-        [Authorize("AdminPolicy")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            try
-            {
-                var users = await _userStorageRepository.GetAllUsersAsync();
-
-                var userDto = _mapper.Map<List<UserDto>>(users);
-
-                return Ok(new { Message = "All users that are registered to our service", Data = userDto });
-            }
-            catch (ArgumentNullException)
-            {
-                return NotFound();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e);
-            }
+            this._logger = logger;
         }
 
         [HttpPost("sign-up")]
@@ -51,15 +31,17 @@ namespace UserService.Controllers
             {
                 var user = await _userService.Register(registerUserDto);
 
-                return Created($"api/authentication/{user.Id}", new { Message = "User was succesfully registered", Data = user });
+                return Created($"api/u/{user.Id}", new { Message = "User was succesfully registered", Data = user });
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
+                _logger.LogError(e.Message);
                 return NoContent();
             }
             catch (Exception e)
             {
-                return StatusCode(500, e);
+                _logger.LogError(e.Message);
+                return StatusCode(500);
             }
         }
 

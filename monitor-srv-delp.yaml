@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+    name: monitor-srv-depl
+spec:
+    replicas: 1
+    selector: 
+        matchLabels:
+            app: monitor-srv
+    template: 
+        metadata: 
+            labels: 
+                app: monitor-srv
+        spec: 
+            containers:
+              - name: monitor-srv
+                image : icykcypher/monitor-srv:latest
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: monitor-srv-clusterip-srv
+spec:  
+    type: ClusterIP
+    selector: 
+        app: monitor-srv
+    ports:
+        - name: monitor-srv
+          protocol: TCP
+          port: 32275
+          targetPort: 8080

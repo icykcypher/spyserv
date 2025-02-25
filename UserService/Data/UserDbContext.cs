@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace UserService.Data
 {
-    public class AuthenticationDbContext(
-       DbContextOptions<AuthenticationDbContext> options,
+    public class UserDbContext(
+       DbContextOptions<UserDbContext> options,
        IOptions<AuthorizationOptions> authOptions) : DbContext(options)
     {
         private readonly IOptions<AuthorizationOptions> _authOptions = authOptions;
@@ -20,18 +20,14 @@ namespace UserService.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=admin", sqlOptions =>
-            {
-                sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
-            })
-                .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information)
-                .EnableSensitiveDataLogging()
-                ;
+            optionsBuilder.UseInMemoryDatabase("InMem")
+                .LogTo(Console.WriteLine, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Warning)
+                .EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AuthenticationDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserDbContext).Assembly);
 
             modelBuilder.ApplyConfiguration(new RolePermissionConfiguration(_authOptions.Value));
         }
