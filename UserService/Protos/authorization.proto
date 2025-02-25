@@ -2,8 +2,6 @@
 
 option csharp_namespace = "UserService";
 
-import "Protos/role.proto";
-import "Protos/permission.proto";
 import "google/protobuf/empty.proto";
 
 message RolePermissionsGrpcEntity {

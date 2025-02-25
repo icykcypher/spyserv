@@ -9,7 +9,6 @@ using UserService.Services.JwtProvider;
 using UserService.Services.UserService;
 using Microsoft.AspNetCore.CookiePolicy;
 using UserService.Services.PasswordHasher;
-using UserService.SyncDataServices.Grpc;
 
 namespace UserService
 {
@@ -50,6 +49,7 @@ namespace UserService
                 options.UseInMemoryDatabase("InMem"));
 
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
+            
             builder.Services.AddScoped<IUserStorageRepository, UserStorageRepository>();
 
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
