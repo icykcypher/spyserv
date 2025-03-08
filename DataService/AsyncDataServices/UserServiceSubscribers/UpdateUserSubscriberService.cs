@@ -4,14 +4,15 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using DataService.Model.UsersModel;
 using DataService.StorageRepositories;
+using DataService.Services.UserServices;
 
 namespace DataService.AsyncDataServices.UserServiceSubscribers
 {
-    public class CreateUserSubscriberService(IConfiguration configuration, ILogger<CreateUserSubscriberService> logger,
+    public class UpdateUserSubscriberService(IConfiguration configuration, ILogger<UpdateUserSubscriberService> logger,
             IServiceProvider serviceProvider) : BackgroundService
     {
         private readonly IConfiguration _configuration = configuration;
-        private readonly ILogger<CreateUserSubscriberService> _logger = logger;
+        private readonly ILogger<UpdateUserSubscriberService> _logger = logger;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
         private IConnection? _connection;
         private IChannel? _channel;
@@ -50,7 +51,6 @@ namespace DataService.AsyncDataServices.UserServiceSubscribers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error processing message: {ErrorMessage}", ex.Message);
                     _logger.LogError("Error processing message: {ErrorMessage}", ex.Message);
                 }
             };
@@ -92,11 +92,11 @@ namespace DataService.AsyncDataServices.UserServiceSubscribers
         private async Task ProcessMessageAsync(User message)
         {
             using var scope = _serviceProvider.CreateScope();
-            var repository = scope.ServiceProvider.GetRequiredService<IUserStorageRepository>();
+            var repository = scope.ServiceProvider.GetRequiredService<IUserDatabaseService>();
 
             try
             {
-                await repository.AddNewUserAsync(message);
+                await repository.UpdateUser(message);
                 _logger.LogInformation("Successfully processed message: AddNewUserAsync.");
             }
             catch (Exception e)
