@@ -4,11 +4,11 @@ using UserService.Static;
 using UserService.ApiExtensions;
 using UserService.MappingProfiles;
 using Microsoft.EntityFrameworkCore;
-using UserService.StorageRepositories;
 using UserService.Services.JwtProvider;
-using UserService.Services.UserService;
 using Microsoft.AspNetCore.CookiePolicy;
 using UserService.Services.PasswordHasher;
+using UserService.SyncDataServices.Grpc;
+using UserService.Services.UserManagmentService;
 
 namespace UserService
 {
@@ -41,7 +41,10 @@ namespace UserService
 
             builder.Services.AddSingleton(Log.Logger);
             builder.Services.AddSingleton<Serilog.Extensions.Hosting.DiagnosticContext>();
-            
+            builder.Services.AddScoped<IRoleGrpcService, RoleGrpcService>();
+            builder.Services.AddScoped<IPermissionGrpcService, PermissionGrpcService>();
+            builder.Services.AddScoped<IAuthorizationGrpcService, AuthorizationGrpcService>();
+
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
             builder.Services.Configure<Configurations.AuthorizationOptions>(builder.Configuration.GetSection(nameof(Configurations.AuthorizationOptions)));
 
@@ -49,8 +52,6 @@ namespace UserService
                 options.UseInMemoryDatabase("InMem"));
 
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
-            
-            builder.Services.AddScoped<IUserStorageRepository, UserStorageRepository>();
 
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();

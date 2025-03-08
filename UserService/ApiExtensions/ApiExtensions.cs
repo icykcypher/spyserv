@@ -4,8 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using UserService.Services.JwtProvider;
 using Microsoft.AspNetCore.Authorization;
 using UserService.Services.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using UserService.Services.RolePermissionProvider;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UserService.ApiExtensions
 {
@@ -76,10 +76,12 @@ namespace UserService.ApiExtensions
         {
             var serviceProvider = services.BuildServiceProvider();
             var rolePermissionsProvider = serviceProvider.GetRequiredService<RolePermissionProviderService>();
-            return await rolePermissionsProvider.GetRolePermissionsAsync();
+            var roles = await rolePermissionsProvider.GetRolesAsync();
+
+            return roles.ToList();
         }
 
-        private static ICollection<RoleEntity> GetRoleEntities(ICollection<PermissionEntity> permissions)
+        private static List<RoleEntity> GetRoleEntities(ICollection<PermissionEntity> permissions)
             => permissions
             .SelectMany(p => p.Roles ?? Enumerable.Empty<RoleEntity>())
             .ToList();
