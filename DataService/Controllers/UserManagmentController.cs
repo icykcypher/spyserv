@@ -3,20 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using DataService.Model.UsersModel;
 using DataService.StorageRepositories;
 using DataService.Services.UserServices;
-using Microsoft.AspNetCore.Authorization;
 
 namespace DataService.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    [Route("api/[controller]")]
+    public class UserManagmentController : ControllerBase
     {
         private readonly IUserStorageRepository _userStorageRepository;
-        private readonly IUserService _userService;
+        private readonly IUserDatabaseService _userService;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
+        private readonly ILogger<UserManagmentController> _logger;
 
-        public UserController(IUserStorageRepository userStorageRepository, IUserService userService, IMapper mapper, ILogger logger)
+        public UserManagmentController(IUserStorageRepository userStorageRepository, IUserDatabaseService userService, IMapper mapper, ILogger<UserManagmentController> logger)
         {
             this._userStorageRepository = userStorageRepository;
             this._userService = userService;
@@ -25,7 +24,6 @@ namespace DataService.Controllers
         }
 
         [HttpGet]
-        [Authorize("AdminPolicy")]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -49,16 +47,25 @@ namespace DataService.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> AddNewUser([FromBody] RegisterUserDto registerUserDto)
         {
+            Console.WriteLine("--> Request");
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("Bad model state" + " " + ModelState);
                 return BadRequest(ModelState);
             }
 
             try
             {
-                var user = await _userService.Register(registerUserDto);
+                Console.WriteLine("--> Trying to register user");
+                if (await _userStorageRepository.UserExists(registerUserDto))
+                {
+                    var user = await _userService.Register(registerUserDto);
 
-                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, new { Message = "User was successfully registered", Data = user });
+                    Console.WriteLine("--> User was successfully registered");
+                    return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, new { Message = "User was successfully registered", Data = user });
+                }
+                
+                return BadRequest(new { Message = "User already exists" });
             }
             catch (InvalidOperationException)
             {
@@ -67,7 +74,7 @@ namespace DataService.Controllers
             catch (Exception e)
             {
                 _logger.LogError($"Error occurred during user registration: {e.Message}");
-                return StatusCode(500, new { Message = "An unexpected error occurred", Details = e.Message });
+                return StatusCode(500, new { Message = "An unexpected error occurred", Details = e });
             }
         }
 
