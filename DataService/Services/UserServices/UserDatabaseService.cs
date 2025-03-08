@@ -4,12 +4,12 @@ using DataService.StorageRepositories;
 
 namespace DataService.Services.UserServices
 {
-    public class UserService : IUserService
+    public class UserDatabaseService : IUserDatabaseService
     {
         private readonly IUserStorageRepository _repository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserStorageRepository repository, IMapper mapper)
+        public UserDatabaseService(IUserStorageRepository repository, IMapper mapper)
         {
             this._repository = repository;
             this._mapper = mapper;
@@ -19,6 +19,7 @@ namespace DataService.Services.UserServices
         {
             var user = _mapper.Map<User>(registerUserDto);
 
+            user.PasswordHash = "blablabla";
 
             user = await _repository.AddNewUserAsync(user);
 
@@ -26,5 +27,7 @@ namespace DataService.Services.UserServices
 
             return user;
         }
+
+        public Task UpdateUser(User message) =>_repository.UpdateUser(message);
     }
 }

@@ -25,7 +25,7 @@ namespace DataService.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_configuration["ConnectionStrings:postgre"], sqlOptions =>
+            optionsBuilder.UseNpgsql(_configuration["ConnectionStrings:postgres"], sqlOptions =>
             {
                 sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorCodesToAdd: null);
             });
@@ -42,12 +42,14 @@ namespace DataService.Data
                 },
                 [ DbLoggerCategory.Database.Command.Name ],
                 LogLevel.Warning);
+
             }
             else
             {
                 optionsBuilder.LogTo(Console.WriteLine, [ DbLoggerCategory.Database.Command.Name ], LogLevel.Information)
                 .EnableSensitiveDataLogging();
             }
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

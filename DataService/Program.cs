@@ -1,9 +1,10 @@
+using Serilog;
 using DataService.Data;
 using DataService.MappingProfiles;
-using DataService.Services.UserServices;
-using DataService.StorageRepositories;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
+using DataService.StorageRepositories;
+using DataService.Services.UserServices;
+using DataService.AsyncDataServices.UserServiceSubscribers;
 
 namespace DataService
 {
@@ -30,14 +31,40 @@ namespace DataService
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<UserServiceDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("postgre")));
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
 
+            builder.Logging.AddSerilog(logger);
+            builder.Services.AddSerilog(logger);
+
+            builder.Services.AddDbContext<UserServiceDbContext>(options =>
+                options.UseNpgsql("ConnectionStrings:postgres"));
+
+            builder.Services.AddHostedService<CreateUserSubscriberService>();
+            builder.Services.AddHostedService<UpdateUserSubscriberService>();
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
             builder.Services.AddScoped<IUserStorageRepository, UserStorageRepository>();
-            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserDatabaseService, UserDatabaseService>();
 
             var app = builder.Build();
+            try
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                    Console.WriteLine("--> Staring Migration");
+                    var context = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
+                    context.Database.Migrate();
+                }
+
+                Console.WriteLine("--> Migrated to the database");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"--> Error occured while trying migrate to the database: {e.Message}");
+                throw;
+            }
 
             if (app.Environment.IsDevelopment())
             {
@@ -54,6 +81,7 @@ namespace DataService
             app.UseCors("AllowAllOrigins");
 
             app.MapControllers();
+            Console.WriteLine("--> Controllers was mapped!");
 
             app.Run();
         }

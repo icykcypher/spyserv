@@ -71,5 +71,14 @@ namespace DataService.StorageRepositories
                 .SelectMany(r => r)
                 .ToArray();
         }
+
+        public async Task UpdateUser(User message)
+        {
+            _dbContext.Users.Update(message);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> UserExists(RegisterUserDto registerUserDto)
+            => await _dbContext.Users.AnyAsync(x => x.Email == registerUserDto.Email);
     }
 }

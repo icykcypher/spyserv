@@ -15,5 +15,7 @@ namespace DataService.StorageRepositories
         Task<User?> GetUserByEmail(string email);
 
         Task<ICollection<RoleEntity>> GetUserPermissions(Guid id);
+        Task<bool> UserExists(RegisterUserDto registerUserDto);
+        Task UpdateUser(User message);
     }
 }
