@@ -4,6 +4,6 @@ namespace UserService.SyncDataServices.Grpc
 {
     public interface IAuthorizationGrpcService
     {
-        Task<IEnumerable<RolePermissions>> GetRolePermissionsAsync(IConfiguration configuration);
+        Task<IEnumerable<RolePermissionEntity>> GetRolePermissionsAsync();
     }
 }

@@ -1,3 +1,7 @@
+using Serilog;
+using NotificationService.Dto;
+using NotificationService.Services;
+using Prometheus;
 
 namespace NotificationService
 {
@@ -7,26 +11,39 @@ namespace NotificationService
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .CreateLogger();
+
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
+            builder.Services.AddScoped<INotificationManagerService, NotificationManagerService>();
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseMetricServer();
+
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseRouting();
 
+            app.UseHttpMetrics(options =>
+            {
+                options.AddCustomLabel("host", context => context.Request.Host.Host);
+            });
+
+            app.UseAuthorization();
 
             app.MapControllers();
 

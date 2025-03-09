@@ -1,20 +1,13 @@
-﻿using UserService.Model;
-using UserService.StorageRepositories;
+﻿using UserService.Data;
+using UserService.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace UserService.Services.Authentication
 {
-    public class PermissionService : IPermissionService
+    public class PermissionService(UserDbContext repository) : IPermissionService
     {
-        private readonly IUserStorageRepository _repository;
+        private readonly UserDbContext _context = repository;
 
-        public PermissionService(IUserStorageRepository repository)
-        {
-            this._repository = repository;
-        }
-
-        public async Task<ICollection<RoleEntity>> GetPermissionsAsync(Guid userId)
-        {
-            return await _repository.GetUserPermissions(userId);
-        }
+        public async Task<ICollection<RoleEntity>> GetPermissionsAsync(Guid userId) => await _context.Roles.ToArrayAsync();
     }
 }

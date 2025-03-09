@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-reges: 'true'
+spec: 
+  rules:
+    - host: mymicroservices.com
+      http: 
+        paths: 
+          - path: /api/u
+            pathType: Prefix
+            backend: 
+              service:
+                name: datasrv-clusterip-srv
+                port: 
+                  number: 42135

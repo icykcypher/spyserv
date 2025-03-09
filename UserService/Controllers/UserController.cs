@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using UserService.Model;
 using Microsoft.AspNetCore.Mvc;
-using UserService.Services.UserService;
-using UserService.StorageRepositories;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
+using UserService.AsyncDataServices;
+using UserService.Services.UserManagmentService;
 
 namespace UserService.Controllers
 {
@@ -12,13 +13,13 @@ namespace UserService.Controllers
     public class UserController : ControllerBase
     {
         private readonly IMapper _mapper;
+        private readonly IUserMessageBusSubscriber _busSubscriber;
         private readonly IUserManagmentService _userService;
         private readonly ILogger<UserController> _logger;
-        private readonly IUserStorageRepository _userStorageRepository;
 
-        public UserController(IUserStorageRepository userStorageRepository, IUserManagmentService userService, IMapper mapper, ILogger<UserController> logger)
+        public UserController(IUserMessageBusSubscriber busSubscriber, IUserManagmentService userService, IMapper mapper, ILogger<UserController> logger)
         {
-            this._userStorageRepository = userStorageRepository;
+            this._busSubscriber = busSubscriber;
             this._userService = userService;
             this._mapper = mapper;
             this._logger = logger;
@@ -45,28 +46,32 @@ namespace UserService.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetUserById([FromRoute] Guid id)
-        {
-            try
-            {
-                var user = await _userStorageRepository.GetUserByIdAsync(id);
-                if (user is null) return NotFound();
+        //[Authorize]
+        //[HttpGet("{id:guid}")]
+        //public async Task<IActionResult> GetUserById()
+        //{
+        //    try
+        //    {
+        //        var handler = new JwtSecurityTokenHandler();
+        //        var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+        //        var userId = Guid.Parse(jwtToken?.Claims?.First(c => c.Type == "id")?.Value ?? throw new ArgumentNullException());
 
-                var userDto = _mapper.Map<UserDto>(user);
+        //        var user = await _userStorageRepository.GetUserByIdAsync(userId);
+        //        if (user is null) return NotFound();
 
-                return Ok(new { Message = "1 User was found", Data = userDto });
-            }
-            catch (ArgumentNullException)
-            {
-                return NotFound();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
+        //        var userDto = _mapper.Map<UserDto>(user);
+
+        //        return Ok(new { Message = "1 User was found", Data = userDto });
+        //    }
+        //    catch (ArgumentNullException)
+        //    {
+        //        return NotFound();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(500, e.Message);
+        //    }
+        //}
 
         [Authorize]
         [HttpDelete("{id:guid}")]
@@ -74,7 +79,7 @@ namespace UserService.Controllers
         {
             try
             {
-                var user = await _userStorageRepository.DeleteUserByIdAsync(id);
+                var user = _busSubscriber.DeleteUserAsync(id);
 
                 if (user is null) return NotFound();
 

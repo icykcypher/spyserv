@@ -1,6 +1,6 @@
 ﻿using UserService.Model;
 
-namespace UserService.Services.UserService
+namespace UserService.Services.UserManagmentService
 {
     public interface IUserManagmentService
     {

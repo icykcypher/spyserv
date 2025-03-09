@@ -64,7 +64,7 @@ namespace UserService.AsyncDataServices
             {
                 if (_connection.IsOpen)
                 {
-                    return await SendMessageAsync(user, properties);
+                    return await _sendNewUserAsync(user, properties);
                 }
                 else
                 {
@@ -81,10 +81,10 @@ namespace UserService.AsyncDataServices
             return Guid.Empty; 
         }
 
-        private async Task<Guid> SendMessageAsync(User user, BasicProperties properties)
+        private async Task<Guid> _sendNewUserAsync(User user, BasicProperties properties)
         {
             var correlationId = Guid.NewGuid().ToString();
-            var replyQueueName = _channel.QueueDeclareAsync().Result.QueueName;
+            var replyQueueName = _channel.QueueDeclareAsync("user-creation-queue").Result.QueueName;
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
             var tcs = new TaskCompletionSource<Guid>();
@@ -94,7 +94,9 @@ namespace UserService.AsyncDataServices
                 if (ea.BasicProperties.CorrelationId == correlationId)
                 {
                     var body = ea.Body.ToArray();
-                    var response = JsonConvert.DeserializeObject<UserCreationResponse>(Encoding.UTF8.GetString(body));
+                    var response = JsonConvert.DeserializeObject<UserCreationResponse>(Encoding.UTF8.GetString(body)) 
+                        ?? throw new Exception("Error in deserialization");
+                    
                     tcs.SetResult(response.UserId);
                 }
             };
@@ -117,6 +119,50 @@ namespace UserService.AsyncDataServices
 
             var userId = await tcs.Task;
             return userId;
+        }
+
+        public async Task DeleteUserAsync(Guid userId)
+        {
+            var properties = new BasicProperties
+            {
+                ContentType = "application/json",
+                DeliveryMode = DeliveryModes.Persistent
+            };
+            try
+            {
+                if (_connection.IsOpen)
+                {
+                    await _deleteUserAsync(userId, properties);
+                }
+                else
+                {
+                    _logger.Error("RabbitMQ Connection is closed, not sending message...");
+                    Console.WriteLine("--> RabbitMQ Connection is closed, not sending message...");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"Error sending message: {e.Message}");
+                Console.WriteLine($"--> Error sending message: {e.Message}");
+            }
+        }
+
+        private async Task _deleteUserAsync(Guid userId, BasicProperties properties)
+        {
+            var correlationId = Guid.NewGuid().ToString();
+            var replyQueueName = _channel.QueueDeclareAsync("user-deletion-queue").Result.QueueName;
+            
+            var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(userId));
+            properties.ReplyTo = replyQueueName;
+            properties.CorrelationId = correlationId;
+            await _channel.BasicPublishAsync
+           (
+               exchange: "trigger",
+               routingKey: "",
+               mandatory: true,
+               basicProperties: properties,
+               body: body
+           );
         }
 
         public void Dispose()

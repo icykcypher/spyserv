@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-srv-depl
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dataservice
+  template: 
+    metadata:
+      labels:
+        app: dataservice
+    spec:
+      containers:
+        - name: dataservice
+          image: icykcypher/dataservice:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata: 
+    name: datasrv-clusterip-srv
+spec:  
+    type: ClusterIP
+    selector: 
+        app: dataservice
+    ports:
+        - name: dataservice
+          protocol: TCP
+          port: 34721
+          targetPort: 8080

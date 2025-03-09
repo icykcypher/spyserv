@@ -3,23 +3,11 @@ using UserService.SyncDataServices.Grpc;
 
 namespace UserService.Services.RolePermissionProvider
 {
-    public class RolePermissionProviderService(AuthorizationGrpcService grpcService, IConfiguration configuration)
+    public class RolePermissionProviderService(RoleGrpcService grpcService)
     {
-        private readonly AuthorizationGrpcService _grpcService = grpcService;
-        private readonly IConfiguration _configuration = configuration;
+        private readonly RoleGrpcService _grpcService = grpcService;
 
-        public async Task<List<RoleEntity>> GetRolePermissionsAsync()
-        {
-            var rolePermissionsGrpc = await _grpcService.GetRolePermissionsAsync(_configuration);
+        public async Task<IEnumerable<RoleEntity>> GetRolesAsync() => await _grpcService.GetRolesAsync();
 
-            return rolePermissionsGrpc.Select(rp => new RoleEntity
-            {
-                Name = rp.Role,
-                Permissions = rp.Permissions.Select(p => new PermissionEntity
-                {
-                    Name = p
-                }).ToArray()
-            }).ToList();
-        }
     }
 }
