@@ -22,11 +22,17 @@
     <button class="sidebar-toggle" id="sidebarToggle">☰</button>
 
     <!-- Навігаційний бар -->
-    <nav class="navbar">
-      <a href="#" class="nav-link">Get started</a>
-      <a href="#" class="nav-link">Lorem ipsum</a>
-      <a href="#" class="nav-link">Lorem ipsum</a>
-    </nav>
+    <header class="navbar">
+      <div class="navbar-left">
+          <a href="#">Get started</a>
+          <a href="#">Lorem Ipsum</a>
+          <a href="#">Lorem Ipsum</a>
+      </div>
+      <div class="navbar-right">
+          <a href="#">Lorem Ipsum</a>
+          <div class="user-icon"></div>
+      </div>
+    </header>
 
     <!-- Основний контент -->
     <div class="main-content">
@@ -39,7 +45,8 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th></th>
+              <th><input type="checkbox" id="statik-chk"></th>
+              <th><span class="status-circle gray"></span></th>
               <th>Name</th>
               <th>CPU (%)</th>
               <th>Memory (%)</th>
@@ -50,7 +57,8 @@
           <tbody>
             <tr>
               <td><input type="checkbox"></td>
-              <td><span class="status-circle green"></span> Lorem ipsum</td>
+              <th><span class="status-circle green"></span></th>
+              <td>Lorem ipsum</td>
               <td>0%</td>
               <td>0%</td>
               <td>Lorem ipsum</td>
@@ -59,7 +67,8 @@
             <!-- Повторювані рядки -->
             <tr>
               <td><input type="checkbox"></td>
-              <td><span class="status-circle green"></span> Lorem ipsum</td>
+              <th><span class="status-circle green"></span></th>
+              <td></span> Lorem ipsum</td>
               <td>0%</td>
               <td>0%</td>
               <td>Lorem ipsum</td>
@@ -67,7 +76,8 @@
             </tr>
             <tr>
               <td><input type="checkbox"></td>
-              <td><span class="status-circle red"></span> Lorem ipsum</td>
+              <th><span class="status-circle red"></span></th>
+              <td> Lorem ipsum</td>
               <td>0%</td>
               <td>0%</td>
               <td>Lorem ipsum</td>
@@ -79,30 +89,31 @@
 
       <!-- Графіки -->
       <div class="charts-container">
-        <div class="chart">
-          <h4>CPU usage:</h4>
-          <div class="graph"></div>
-        </div>
-        <div class="chart">
-          <h4>Disk read/write:</h4>
-          <div class="graph"></div>
-        </div>
-        <div class="chart">
-          <h4>Memory usage:</h4>
-          <div class="graph"></div>
-        </div>
-        <div class="chart">
-          <h4>Network I/O:</h4>
-          <div class="graph"></div>
-        </div>
+        <div class="chart-container">
+          <p class="chart-p">CPU usage:</p>
+          <canvas id="cpuChart" width="300" height="150"></canvas>
+      </div>
+      <div class="chart-container">
+          <p class="chart-p">Disk read/write:</p>
+          <canvas id="diskChart" width="300" height="150"></canvas>
+      </div>
+      <div class="chart-container">
+          <p class="chart-p">Memory usage:</p>
+          <canvas id="memoryChart" width="300" height="150"></canvas>
+      </div>
+      <div class="chart-container">
+          <p class="chart-p">Network I/O:</p>
+          <canvas id="networkChart" width="300" height="150"></canvas>
+      </div>
       </div>
     </div>
 
     <!-- Футер -->
     <footer class="footer">
-      <a href="#" class="nav-link-footer">Get started</a>
-      <a href="#" class="nav-link-footer">Lorem ipsum</a>
-      <a href="#" class="nav-link-footer">Lorem ipsum</a>
+      <a href="#" id="nlf" class="nav-link-footer">© 2025 icykcypher</a>
+      <a href="#" class="nav-link-footer">Privacy Policy</a>
+      <a href="#" class="nav-link-footer">Terms of Use</a>
+      <a href="#" class="nav-link-footer">Contact</a>
     </footer>
   </div>
 
