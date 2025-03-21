@@ -1,0 +1,118 @@
+@font-face {
+  font-family: 'Roboto', sans-serif;
+  src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+body {
+    background-color: #0D1017;
+    color: #ffffff;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/*Navbar*/
+
+.navbar {
+    font-size: 13px;
+    width: 100%;
+    display: flex;
+    background-color: #141B23;
+    padding: 10px 0;
+    justify-content: center; /* Центрує контент */
+    position: fixed;
+  }
+  
+  .navbar-left {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .navbar-left a:hover {
+    color: #007bff;
+  }
+  
+  .navbar-right {
+    font-size: 13px;
+    position: absolute;
+    right: 20px; /* Закріплює профіль справа */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 40px;
+    background-image: url('Generic avatar.png'); /* Шлях до зображення */
+    background-repeat: no-repeat;
+    background-position: 90px center; /* Розташування картинки */
+    background-size: 16px 16px; /* Розмір картинки */
+  }
+  
+  .navbar-left a, .navbar-right a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+  }
+
+  /*Main Content*/
+
+.error-container {
+    position: absolute;
+    background-color: #141B23;
+    padding-bottom: 40px;
+    padding-left: 48px;
+    padding-right: 48px;
+    border-radius: 10px;
+    margin-top: 180px;
+    border-radius: 6px;
+    border: 1px solid #3E424B;
+}
+.error-code {
+    font-family: 'Saira Stencil One', sans-serif;
+    font-size: 150px;
+    margin: 0;
+}
+.error-message {
+    margin-bottom: 60px;
+    font-size: 33px;
+    margin-top: -30px;
+    
+}
+
+.retry {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: #707070;
+}
+.error-text {
+    margin-top: 137px;
+    font-size: 19px;
+    color: #4C515D;
+}
+
+/*Footer*/
+.footer {
+    background-color: #0D1017;
+    padding: 0px 20px;
+    padding-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    height: 40px;
+  }
+  
+  .nav-link-footer {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #3E424B;
+  }
+  
+  #nlf {
+    color: #555B67;
+  }
+  
+  .nav-link-footer:hover {
+    text-decoration: underline;
+  }

@@ -3,6 +3,12 @@
   src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
 }
 
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* Зменшує масштаб для мобільних */
+  }
+}
+
 /* Загальні стилі */
 * {
   margin: 0;
@@ -45,12 +51,17 @@ body, html {
 }
 
 .navbar-right {
+  font-size: 13px;
   position: absolute;
   right: 20px; /* Закріплює профіль справа */
   display: flex;
   align-items: center;
   gap: 10px;
   margin-right: 40px;
+  background-image: url('Generic avatar.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 90px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
 }
 
 .navbar-left a, .navbar-right a {
@@ -113,6 +124,11 @@ body, html {
   border: 3px solid #242A32;
   border-radius: 3px;
   color: #3E424B;
+  background-image: url('icon.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 5px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+  padding-left: 23px; 
 }
 
 .data-table {
@@ -128,8 +144,6 @@ tbody{
 .data-table th,
 .data-table td {
   padding: 5px 5px;
-  text-align: left;
-  border-bottom: 1px solid #2a2a2a;
 }
 
 .data-table th {
@@ -138,30 +152,106 @@ tbody{
 
 .status-circle {
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
 }
 
 .status-circle.green {
-  background-color: #00ff00;
+  background-color: #238636;
 }
 
 .status-circle.red {
-  background-color: #ff0000;
+  background-color: #D75E55;
 }
 
 .status-circle.gray {
-  background-color: #bdbdb4;
+  background-color: #FFFFFF;
 }
 
-#statik-chk{
-  background-color: #bdbdb4;
+.status-circle.noth {
+  background-color: #0D1017;
 }
 
 .icon {
   cursor: pointer;
-  margin-left: 5px;
+  width: 14px; /* Ширина кнопки */
+  height: 14px; /* Висота кнопки */
+  background-color: #0D1017;
+  background-image: url('trsh_buck.png');
+  background-size: cover;
+  margin-left: 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+.icon-2 {
+  cursor: pointer;
+  width: 11px; /* Ширина кнопки */
+  height: 11px; /* Висота кнопки */
+  background-image: url('Stop_butt.png');
+  margin-left: 15px;
+  background-color: #0D1017;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+/* Ховаємо стандартний чекбокс */
+.checkbox-hidden {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Базовий стан чекбокса (фонова картинка) */
+.checkbox-icon {
+  display: inline-block;
+  width: 16px; /* Розмір іконки */
+  height: 16px;
+  background-image: url('Unchecked.png'); /* Картинка для НЕ вибраного стану */
+  background-size: cover;
+  cursor: pointer;
+  transition: background-image 0.3s ease;
+}
+
+/* Стан, коли чекбокс натиснутий */
+.checkbox-hidden:checked + .checkbox-icon {
+  background-image: url('Checked.png');
+}
+
+/* Розмітка таблиці */
+
+.table-craft{
+  border-left: 1px solid #2a2a2a;
+  border-bottom: 1px solid #2a2a2a;
+  text-align: center;
+}
+
+.table-action{
+  border-left: 1px solid #2a2a2a;
+  text-align: left;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.table-name{
+  border-left: 1px solid #2a2a2a;
+  border-bottom: 1px solid #2a2a2a;
+  text-align: left;
+}
+
+.custom-checkbox{
+  border-bottom: 1px solid #2a2a2a;
+  text-align: center;
+}
+
+.table-bord{
+  border-left: 1px solid #2a2a2a;
 }
 
 /* Графіки */
@@ -221,27 +311,43 @@ canvas {
   margin-top: 35px;
   position: fixed;
   top: 0;
-  left: -250px;
-  width: 250px;
+  left: -180px;
+  width: 180px;
   height: 100%;
   padding: 20px;
   transition: left 0.3s ease;
   z-index: 1000;
 }
 
+#main-title {
+  margin-top: 45px;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 25px;
+  margin-left: 5px;
+}
+
+.title-text {
+  text-decoration: none;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 30px;
+  margin-left: 5px;
+}
+
+.rockie-text{
+  font-size: 12px;
+  text-decoration: none;
+  color: #A8A8A8;
+  margin-left: 19px;
+}
+
 .sidebar-nav {
   list-style: none;
-  padding: 0;
 }
 
 .sidebar-nav li {
-  margin-bottom: 20px;
-}
-
-.sidebar-nav a {
-  text-decoration: none;
-  color: #ffffff;
-  font-size: 18px;
+  margin-bottom: 9px;
 }
 
 .sidebar-nav a:hover {
@@ -250,28 +356,32 @@ canvas {
 
 /* Кнопка для відкриття/закриття меню */
 .sidebar-toggle {
-  margin-top: 39px;
   position: fixed;
-  top: 20px;
-  left: 10px;
-  width: 40px;
-  height: 40px;
-  background-color: #007bff;
+  margin-left: 0px;
+  margin-top: 100px;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  background-size: cover;
+  background-image: url('Group 17.png');
+  background-repeat: no-repeat;
+  background-color: #0D1017;
   color: #ffffff;
   border: none;
-  border-radius: 50%;
   cursor: pointer;
   z-index: 1001;
   transition: left 0.3s ease;
 }
 
 .sidebar.open ~ .sidebar-toggle {
-  left: 230px; /* Коригуємо позицію кнопки */
+  left: 220px; /* Коригуємо позицію кнопки */
   z-index: 999; /* Менший z-index, щоб кнопка була позаду меню */
+  background-image: url('Rectangle 13.png');
+  border-radius: 0px 5px 5px 0px;
 }
 
 .sidebar.open ~ .main-content {
-  margin-left: 210px;
+  margin-left: 150px;
   width: calc(100% - 270px);
 }
 

@@ -11,15 +11,18 @@
     <!-- Бокове меню -->
     <div class="sidebar" id="sidebar">
       <ul class="sidebar-nav">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Dashboard</a></li>
-        <li><a href="#">Settings</a></li>
-        <li><a href="#">Profile</a></li>
+        <li id="main-title"><a href="#"  class="title-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
       </ul>
     </div>
 
     <!-- Кнопка для бокового меню -->
-    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+    <button class="sidebar-toggle" id="sidebarToggle"></button>
 
     <!-- Навігаційний бар -->
     <header class="navbar">
@@ -45,43 +48,65 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th><input type="checkbox" id="statik-chk"></th>
-              <th><span class="status-circle gray"></span></th>
-              <th>Name</th>
-              <th>CPU (%)</th>
-              <th>Memory (%)</th>
-              <th>Last started</th>
-              <th>Actions</th>
+              <th class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden" disabled>
+                <span class="checkbox-icon"></span>
+              </th>
+              <th class="table-craft"><span class="status-circle gray"></span></th>
+              <th class="table-craft">Name</th>
+              <th class="table-craft">CPU (%)</th>
+              <th class="table-craft">Memory (%)</th>
+              <th class="table-craft">Last started</th>
+              <th class="table-craft">Actions</th>
             </tr>
           </thead>
+            <!-- Повторювані рядки -->
           <tbody>
             <tr>
-              <td><input type="checkbox"></td>
-              <th><span class="status-circle green"></span></th>
-              <td>Lorem ipsum</td>
-              <td>0%</td>
-              <td>0%</td>
-              <td>Lorem ipsum</td>
-              <td><span class="icon">🗑️</span><span class="icon">▶️</span></td>
-            </tr>
-            <!-- Повторювані рядки -->
-            <tr>
-              <td><input type="checkbox"></td>
-              <th><span class="status-circle green"></span></th>
-              <td></span> Lorem ipsum</td>
-              <td>0%</td>
-              <td>0%</td>
-              <td>Lorem ipsum</td>
-              <td><span class="icon">🗑️</span><span class="icon">▶️</span></td>
+              <td class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden">
+                <span class="checkbox-icon"></span>
+              </td>
+              <th class="table-craft"><span class="status-circle green"></span></th>
+              <td class="table-name">Lorem ipsum</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">Lorem ipsum</td>
+              <td class="table-action"><button class="icon"></button><button class="icon-2" ></button></td>
             </tr>
             <tr>
-              <td><input type="checkbox"></td>
-              <th><span class="status-circle red"></span></th>
-              <td> Lorem ipsum</td>
-              <td>0%</td>
-              <td>0%</td>
-              <td>Lorem ipsum</td>
-              <td><span class="icon">🗑️</span><span class="icon">▶️</span></td>
+              <td class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden">
+                <span class="checkbox-icon"></span>
+              </td>
+              <th class="table-craft"><span class="status-circle green"></span></th>
+              <td class="table-name"></span> Lorem ipsum</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">Lorem ipsum</td>
+              <td class="table-action"><button class="icon"></button><button class="icon-2" ></button></td>
+            </tr>
+            <tr>
+              <td class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden">
+                <span class="checkbox-icon"></span>
+              </td>
+              <th class="table-craft"><span class="status-circle red"></span></th>
+              <td class="table-name">Lorem ipsum</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">Lorem ipsum</td>
+              <td class="table-action"><button class="icon"></button><button class="icon-2" ></button></td>
+            </tr>
+            <!-- Нижні рядки, просто розмітка таблиці!! -->
+            <tr>
+              <td></td>
+              <th class="table-bord"><span class="status-circle noth"></span></th>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
             </tr>
           </tbody>
         </table>
