@@ -12,11 +12,10 @@
   
   body, html {
     width: 100%;
-    height: 100%;
+    height: 96%;
     font-family: 'Roboto', sans-serif;
     background-color: #0D1017;
     color: #ffffff;
-    height: 100%;
   }
   
   .container {
@@ -26,20 +25,46 @@
   }
   
   /* Навігаційний бар */
-  .navbar {
-    width: 100%;
-    background-color: #141B23;
-    font-size: 18px;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-  }
+  /*Navbar*/
   
-  .nav-link {
-    color: #ffffff;
-    text-decoration: none;
-    margin: 0 16px;
-  }
+.navbar {
+  font-size: 13px;
+  width: 100%;
+  display: flex;
+  background-color: #141B23;
+  padding: 10px 0;
+  justify-content: center; /* Центрує контент */
+  position: fixed;
+}
+
+.navbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-left a:hover {
+  color: #007bff;
+}
+
+.navbar-right {
+  font-size: 13px;
+  position: absolute;
+  right: 20px; /* Закріплює профіль справа */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 40px;
+  background-image: url('Generic avatar.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 90px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+}
+
+.navbar-left a, .navbar-right a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+}
   
   /* Контент */
   .content {
@@ -88,14 +113,14 @@
     font-size: 30px;
   }
 
-/* Футер */
+/*Footer*/
 .footer {
   background-color: #0D1017;
-  padding: 10px 20px;
-  padding-left: 37px;
+  padding: 0px 20px;
+  padding-top: 10px;
   text-align: center;
-  font-size: 14px;
-  height: 50px;
+  font-size: 12px;
+  height: 40px;
 }
 
 .nav-link-footer {
