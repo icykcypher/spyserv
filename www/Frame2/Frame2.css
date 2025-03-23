@@ -1,0 +1,391 @@
+@font-face {
+  font-family: 'Roboto', sans-serif;
+  src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* Зменшує масштаб для мобільних */
+  }
+}
+
+/* Загальні стилі */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  background-color: #0D1017;
+  color: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Навігаційний бар */
+.navbar {
+  width: 100%;
+  display: flex;
+  background-color: #141B23;
+  padding: 10px 0;
+  justify-content: center; /* Центрує контент */
+  position: fixed;
+}
+
+.navbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-left a:hover {
+  color: #007bff;
+}
+
+.navbar-right {
+  font-size: 13px;
+  position: absolute;
+  right: 20px; /* Закріплює профіль справа */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 40px;
+  background-image: url('Generic avatar.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 90px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+}
+
+.navbar-left a, .navbar-right a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+/* Основний контент */
+.main-content {
+  margin-top: 65px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-grow: 1;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  width: 100%; /* Ширина контенту за замовчуванням */
+  margin-left: -30px;
+}
+
+/* Таблиця */
+.table-container {
+  width: 53%;
+  margin-right: 30px;
+  margin-left: 100px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 13px;
+  margin-bottom: 34px;
+  margin-right: 30%;/*corect*/
+}
+
+.add-button {
+  background-color: #0D1017;
+  color: #2F538D;
+  padding: 7px 15px;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  border-color: #2F538D;
+  border-radius: 3px;
+  border-style: solid;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 20px;
+}
+
+.add-button:hover {
+  background-color: #0056b3;
+  color: #0D1017;
+}
+
+.search-bar {
+  flex: 1;
+  padding: 10px;
+  background-color: #0D1017;
+  border: 3px solid #242A32;
+  border-radius: 3px;
+  color: #3E424B;
+  background-image: url('icon.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 5px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+  padding-left: 23px; 
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+tbody{
+  font-size: 12px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 5px 5px;
+}
+
+.data-table th {
+  background-color: #0D1017;
+}
+
+.status-circle {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.status-circle.green {
+  background-color: #238636;
+}
+
+.status-circle.red {
+  background-color: #D75E55;
+}
+
+.status-circle.gray {
+  background-color: #FFFFFF;
+}
+
+.status-circle.noth {
+  background-color: #0D1017;
+}
+
+.icon {
+  cursor: pointer;
+  width: 14px; /* Ширина кнопки */
+  height: 14px; /* Висота кнопки */
+  background-color: #0D1017;
+  background-image: url('trsh_buck.png');
+  background-size: cover;
+  margin-left: 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+.icon-2 {
+  cursor: pointer;
+  width: 11px; /* Ширина кнопки */
+  height: 11px; /* Висота кнопки */
+  background-image: url('Stop_butt.png');
+  margin-left: 15px;
+  background-color: #0D1017;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+}
+
+/* Ховаємо стандартний чекбокс */
+.checkbox-hidden {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Базовий стан чекбокса (фонова картинка) */
+.checkbox-icon {
+  display: inline-block;
+  width: 16px; /* Розмір іконки */
+  height: 16px;
+  background-image: url('Unchecked.png'); /* Картинка для НЕ вибраного стану */
+  background-size: cover;
+  cursor: pointer;
+  transition: background-image 0.3s ease;
+}
+
+/* Стан, коли чекбокс натиснутий */
+.checkbox-hidden:checked + .checkbox-icon {
+  background-image: url('Checked.png');
+}
+
+/* Розмітка таблиці */
+
+.table-craft{
+  border-left: 1px solid #2a2a2a;
+  border-bottom: 1px solid #2a2a2a;
+  text-align: center;
+}
+
+.table-action{
+  border-left: 1px solid #2a2a2a;
+  text-align: left;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.table-name{
+  border-left: 1px solid #2a2a2a;
+  border-bottom: 1px solid #2a2a2a;
+  text-align: left;
+}
+
+.custom-checkbox{
+  border-bottom: 1px solid #2a2a2a;
+  text-align: center;
+}
+
+.table-bord{
+  border-left: 1px solid #2a2a2a;
+}
+
+/* Графіки */
+.charts-container {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-right: 170px;
+  margin-bottom: 50px;
+  margin-top: 92px;
+  width: 35%;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  padding-right: 30px;
+}
+
+canvas {
+  background: #0D1017;
+}
+
+.chart-p{
+  margin-bottom: 15px;
+  margin-left: 2px;
+}
+
+/* Футер */
+.footer {
+  background-color: #0D1017;
+  padding: 0px 20px;
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  height: 40px;
+}
+
+.nav-link-footer {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #3E424B;
+}
+
+#nlf {
+  color: #555B67;
+}
+
+.nav-link-footer:hover {
+  text-decoration: underline;
+}
+
+/* Стилі для бокового меню */
+.sidebar {
+  margin-top: 35px;
+  position: fixed;
+  top: 0;
+  left: -180px;
+  width: 180px;
+  height: 100%;
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+#main-title {
+  margin-top: 45px;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 25px;
+  margin-left: 5px;
+}
+
+.title-text {
+  text-decoration: none;
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 30px;
+  margin-left: 5px;
+}
+
+.rockie-text{
+  font-size: 12px;
+  text-decoration: none;
+  color: #A8A8A8;
+  margin-left: 19px;
+}
+
+.sidebar-nav {
+  list-style: none;
+}
+
+.sidebar-nav li {
+  margin-bottom: 9px;
+}
+
+.sidebar-nav a:hover {
+  color: #007bff;
+}
+
+/* Кнопка для відкриття/закриття меню */
+.sidebar-toggle {
+  position: fixed;
+  margin-left: 0px;
+  margin-top: 100px;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  background-size: cover;
+  background-image: url('Group 17.png');
+  background-repeat: no-repeat;
+  background-color: #0D1017;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+  transition: left 0.3s ease;
+}
+
+.sidebar.open ~ .sidebar-toggle {
+  left: 220px; /* Коригуємо позицію кнопки */
+  z-index: 999; /* Менший z-index, щоб кнопка була позаду меню */
+  background-image: url('Rectangle 13.png');
+  border-radius: 0px 5px 5px 0px;
+}
+
+.sidebar.open ~ .main-content {
+  margin-left: 150px;
+  width: calc(100% - 270px);
+}
+
+.sidebar.open ~ .sidebar {
+  background-color: #007bff;
+}
+

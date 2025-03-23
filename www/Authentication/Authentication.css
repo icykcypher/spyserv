@@ -11,7 +11,7 @@
 
 body, html {
   width: 100%;
-  height: 100%;
+  height: 99%;
   font-family: 'Roboto', sans-serif;
   background-color: #0D1017;
   color: #ffffff;
@@ -25,19 +25,53 @@ body, html {
   height: 100%;
 }
 
+/*Navbar*/
+  
 .navbar {
+  font-size: 13px;
   width: 100%;
+  display: flex;
   background-color: #141B23;
   padding: 10px 0;
-  display: flex;
-  justify-content: center;
+  justify-content: center; /* Центрує контент */
+  position: fixed;
 }
+
+.navbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-left a:hover {
+  color: #007bff;
+}
+
+.navbar-right {
+  font-size: 13px;
+  position: absolute;
+  right: 20px; /* Закріплює профіль справа */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 40px;
+  background-image: url('Generic avatar.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 90px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+}
+
+.navbar-left a, .navbar-right a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+/*Main Content*/
 
 .nav-link {
   margin: 0 15px;
   text-decoration: none;
   color: #ffffff;
-  font-weight: bold;
 }
 
 .main-content {
@@ -52,12 +86,7 @@ body, html {
   align-items: center;
   justify-content: center;
   flex-grow: 1;
-}
-
-.sidebar {
-  width: 15%;
-  background-color: #090C11;
-  box-shadow: 0 10px 0 10px rgba(0, 0, 0, 0.46);
+  margin-left: 15%;
 }
 
 .circle {
@@ -79,7 +108,7 @@ body, html {
 
 .btn {
   display: inline-block;
-  padding: 20px 35px 25px 40px;
+  padding: 20px 20px 20px 40px;
   margin: 5px;
   font-family: 'Roboto', sans-serif;
   font-size: 48px;
@@ -96,6 +125,36 @@ body, html {
   width: 260px;
 }
 
+#sign {
+  background-color: #007bff;
+  padding: 20px 20px 20px 48px;
+
+}
+
 .btn:hover {
   background-color: #0056b3;
+}
+
+/* Футер */
+.footer {
+  background-color: #0D1017;
+  padding: 0px 20px;
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  height: 40px;
+}
+
+.nav-link-footer {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #3E424B;
+}
+
+#nlf {
+  color: #555B67;
+}
+
+.nav-link-footer:hover {
+  text-decoration: underline;
 }

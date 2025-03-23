@@ -1,0 +1,118 @@
+@font-face {
+    font-family: 'Roboto', sans-serif;
+    src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+  }
+
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #0D1017;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/*Navbar*/
+  
+.navbar {
+    font-size: 13px;
+    width: 100%;
+    display: flex;
+    background-color: #141B23;
+    padding: 10px 0;
+    justify-content: center; /* Центрує контент */
+    position: fixed;
+  }
+  
+  .navbar-left {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .navbar-left a:hover {
+    color: #007bff;
+  }
+  
+  .navbar-right {
+    font-size: 13px;
+    position: absolute;
+    right: 20px; /* Закріплює профіль справа */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 40px;
+    background-image: url('Generic avatar.png'); /* Шлях до зображення */
+    background-repeat: no-repeat;
+    background-position: 90px center; /* Розташування картинки */
+    background-size: 16px 16px; /* Розмір картинки */
+  }
+  
+.navbar-left a, .navbar-right a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+/*Main Content*/
+
+.main {
+    margin-top: 35px;
+    display: flex;
+    flex: 1;
+    position: sticky;
+}
+
+.sidebar {
+    width: 300px;
+    background-color: #07090D;
+    padding: 20px;
+    box-sizing: border-box;
+    position: fixed;
+    height: 100%;
+}
+
+.sidebar p {
+    margin-left: 13px;
+    margin-top: 90px;
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.profile-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 360px;/*Size sidebar(dont touch normal)*/
+    margin-top: 60px;
+}
+
+.large-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+/*Footer*/
+.footer {
+    background-color: #0D1017;
+    padding: 0px 20px;
+    padding-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    height: 40px;
+  }
+  
+  .nav-link-footer {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #3E424B;
+  }
+  
+  #nlf {
+    color: #555B67;
+  }
+  
+  .nav-link-footer:hover {
+    text-decoration: underline;
+  }

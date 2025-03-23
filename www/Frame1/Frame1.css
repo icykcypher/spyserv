@@ -1,0 +1,152 @@
+@font-face {
+    font-family: 'Roboto', sans-serif;
+    src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+  }
+
+/* Загальні стилі */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    width: 100%;
+    height: 96%;
+    font-family: 'Roboto', sans-serif;
+    background-color: #0D1017;
+    color: #ffffff;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  /* Навігаційний бар */
+  /*Navbar*/
+  
+.navbar {
+  font-size: 13px;
+  width: 100%;
+  display: flex;
+  background-color: #141B23;
+  padding: 10px 0;
+  justify-content: center; /* Центрує контент */
+  position: fixed;
+}
+
+.navbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-left a:hover {
+  color: #007bff;
+}
+
+.navbar-right {
+  font-size: 13px;
+  position: absolute;
+  right: 20px; /* Закріплює профіль справа */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 40px;
+  background-image: url('Generic avatar.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 90px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+}
+
+.navbar-left a, .navbar-right a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+}
+  
+  /* Контент */
+  .content {
+    padding: 20px;
+    padding-top: 4%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-left: 10%;/* Під питанням */
+    margin-right: 10%;/* Під питанням */
+  }
+  
+  /* Елемент списку */
+  .list-item {
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #141B23;
+    padding: 15px 20px;
+    border: 1px solid #333944;
+    color: #ffffff;
+  }
+  
+  .item-text h3 {
+    margin-left: 25px;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  
+  .item-text p {
+    margin-left: 25px;
+    font-size: 14px;
+    color: #556886;
+  }
+  
+  .item-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 25px;
+    font-size: 16px;
+  }
+  
+  .item-status span {
+    font-size: 30px;
+  }
+
+/*Footer*/
+.footer {
+  background-color: #0D1017;
+  padding: 0px 20px;
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  height: 40px;
+}
+
+.nav-link-footer {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #3E424B;
+}
+
+#nlf {
+  color: #555B67;
+}
+
+.nav-link-footer:hover {
+  text-decoration: underline;
+}
+  
+  /* Статуси */
+  .green span {
+    color: #238636;
+  }
+  
+  .red span {
+    color: #D75E55;
+  }
+  
+  .default span {
+    color: #ffffff;
+  }
+  
