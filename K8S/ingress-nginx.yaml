@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: user-srv-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/log-level: debug
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: spyserv.dev
+      http:
+        paths:
+          - path: /api/u/
+            pathType: Prefix
+            backend:
+              service:
+                name: user-srv-clusterip-srv
+                port:
+                  number: 25424

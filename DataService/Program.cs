@@ -4,6 +4,9 @@ using DataService.MappingProfiles;
 using Microsoft.EntityFrameworkCore;
 using DataService.StorageRepositories;
 using DataService.Services.UserServices;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using DataService.SyncDataServices.Grpc.UserService;
+using DataService.Configurations.UsersConfigurations;
 using DataService.AsyncDataServices.UserServiceSubscribers;
 
 namespace DataService
@@ -13,6 +16,14 @@ namespace DataService
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(8080, listenOptions =>
+                {
+                    listenOptions.Protocols = HttpProtocols.Http2;
+                });
+            });
 
             builder.Services.AddCors(options =>
             {
@@ -39,14 +50,21 @@ namespace DataService
             builder.Logging.AddSerilog(logger);
             builder.Services.AddSerilog(logger);
 
+            builder.Services.Configure<AuthorizationOptions>(
+                builder.Configuration.GetSection("AuthorizationOptions"));
+
             builder.Services.AddDbContext<UserServiceDbContext>(options =>
                 options.UseNpgsql("ConnectionStrings:postgres"));
 
-            builder.Services.AddHostedService<CreateUserSubscriberService>();
-            builder.Services.AddHostedService<UpdateUserSubscriberService>();
+            builder.Services.AddGrpc();
+
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
             builder.Services.AddScoped<IUserStorageRepository, UserStorageRepository>();
             builder.Services.AddScoped<IUserDatabaseService, UserDatabaseService>();
+
+            builder.Services.AddSingleton<CreateUserSubscriberService>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<CreateUserSubscriberService>());
+            Console.WriteLine("CreateUserSubscriberService registered as HostedService");
 
             var app = builder.Build();
             try
@@ -63,7 +81,6 @@ namespace DataService
             catch (Exception e)
             {
                 Console.WriteLine($"--> Error occured while trying migrate to the database: {e.Message}");
-                throw;
             }
 
             if (app.Environment.IsDevelopment())
@@ -72,8 +89,6 @@ namespace DataService
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseAuthentication();
 
             app.UseAuthorization();
@@ -81,7 +96,9 @@ namespace DataService
             app.UseCors("AllowAllOrigins");
 
             app.MapControllers();
-            Console.WriteLine("--> Controllers was mapped!");
+            Console.WriteLine("--> Controllers were mapped!");
+
+            app.MapGrpcService<GrpcUserCommunicationService>();
 
             app.Run();
         }

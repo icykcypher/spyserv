@@ -1,31 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
-    name: user-srv-depl
+metadata:
+  name: user-srv-depl
 spec:
-    replicas: 1
-    selector: 
-        matchLabels:
-            app: user-srv
-    template: 
-        metadata: 
-            labels: 
-                app: user-srv
-        spec: 
-            containers:
-              - name: user-srv
-                image : icykcypher/user-srv:latest
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-srv
+  template:
+    metadata:
+      labels:
+        app: user-srv
+    spec:
+      containers:
+        - name: user-srv
+          image: icykcypher/userservice:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: keys
+              mountPath: /home/app/.aspnet/DataProtection-Keys
+      volumes:
+        - name: keys
+          hostPath:
+            path: /var/lib/data-protection-keys
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service
-metadata: 
-    name: user-srv-clusterip-srv
-spec:  
-    type: ClusterIP
-    selector: 
-        app: user-srv
-    ports:
-        - name: user-srv
-          protocol: TCP
-          port: 54321
-          targetPort: 8080
+metadata:
+  name: user-srv-clusterip-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: user-srv
+  ports:
+    - name: user-srv
+      protocol: TCP
+      port: 25424 
+      targetPort: 8080

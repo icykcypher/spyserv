@@ -3,30 +3,33 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using DataService.Model.UsersModel;
-using DataService.StorageRepositories;
 using DataService.Services.UserServices;
 
 namespace DataService.AsyncDataServices.UserServiceSubscribers
 {
-    public class UpdateUserSubscriberService(IConfiguration configuration, ILogger<UpdateUserSubscriberService> logger,
-            IServiceProvider serviceProvider) : BackgroundService
+    public class UpdateUserSubscriberService(
+        IConfiguration configuration,
+        ILogger<UpdateUserSubscriberService> logger,
+        IServiceProvider serviceProvider
+    ) : BackgroundService
     {
         private readonly IConfiguration _configuration = configuration;
         private readonly ILogger<UpdateUserSubscriberService> _logger = logger;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
+
         private IConnection? _connection;
         private IChannel? _channel;
-        private string _queueName = string.Empty;
+        private string _queueName = "user-update-queue";
+        private const string _exchangeName = "user.direct";
+        private const string _routingKey = "user.updated";
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
-            await InitializeRabbitMQ();
+            await InitializeRabbitMQAsync();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            stoppingToken.ThrowIfCancellationRequested();
-
             if (_channel == null)
             {
                 _logger.LogError("RabbitMQ channel is not initialized.");
@@ -34,88 +37,84 @@ namespace DataService.AsyncDataServices.UserServiceSubscribers
             }
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.ReceivedAsync += async (sender, ea) =>
-            {
-                try
-                {
-                    var body = ea.Body.ToArray();
-                    var notificationMessage = Encoding.UTF8.GetString(body);
-
-                    _logger.LogInformation("Event Received: {NotificationMessage}", notificationMessage);
-
-                    var user = JsonConvert.DeserializeObject<User>(notificationMessage) ?? throw new Exception("Cannot deserialize user at: CreateUserSubscriberService");
-
-                    await Task.Run(() => ProcessMessageAsync(user), stoppingToken);
-
-                    await _channel.BasicAckAsync(ea.DeliveryTag, false);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Error processing message: {ErrorMessage}", ex.Message);
-                }
-            };
+            consumer.ReceivedAsync += OnMessageReceived;
 
             await _channel.BasicConsumeAsync(queue: _queueName, autoAck: false, consumer: consumer);
+            _logger.LogInformation("Started consuming messages on queue: {QueueName}", _queueName);
         }
 
-        private async Task InitializeRabbitMQ()
+        private async Task InitializeRabbitMQAsync()
         {
             try
             {
-                #pragma warning disable CS8601, CS8604 // Possible null reference assignment.
-                var factory = new ConnectionFactory()
+                var factory = new ConnectionFactory
                 {
-                    HostName = _configuration["RabbitMQHost"],
-                    Port = int.Parse(_configuration["RabbitMQPort"])
+                    HostName = _configuration["RabbitMQHost"]!,
+                    Port = int.Parse(_configuration["RabbitMQPort"]!)
                 };
-                #pragma warning restore CS8601, CS8604 // Possible null reference assignment.
 
                 _connection = await factory.CreateConnectionAsync();
                 _channel = await _connection.CreateChannelAsync();
 
-                await _channel.ExchangeDeclareAsync("trigger", ExchangeType.Fanout);
-                _queueName = _channel.QueueDeclareAsync().Result.QueueName;
-                await _channel.QueueBindAsync(_queueName, "trigger", "");
+                await _channel.ExchangeDeclareAsync(_exchangeName, ExchangeType.Direct, durable: true, passive: false, autoDelete: false);
+                await _channel.QueueDeclareAsync(_queueName, durable: true, exclusive: false, autoDelete: false);
+                await _channel.QueueBindAsync(_queueName, _exchangeName, _routingKey);
 
-                Console.WriteLine($"--> Listening on the Message Bus... queue: {_queueName}");
-                _logger.LogInformation("Listening on the Message Bus...");
+                _connection.ConnectionShutdownAsync += async (s, e) =>
+                {
+                    _logger.LogWarning("RabbitMQ connection shutdown: {Reason}", e.ReplyText);
+                    await Task.CompletedTask;
+                };
 
-                _connection.ConnectionShutdownAsync += RabbitMQ_ConnectionShutdown;
+                _logger.LogInformation("RabbitMQ initialized and listening on queue: {QueueName}", _queueName);
+                Console.WriteLine("RabbitMQ initialized and listening on queue: {0}", _queueName);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError("Error initializing RabbitMQ: {ErrorMessage}", e.Message);
+                _logger.LogError(ex, "Failed to initialize RabbitMQ");
                 throw;
+            }
+
+            await Task.CompletedTask;
+        }
+
+
+        private async Task OnMessageReceived(object sender, BasicDeliverEventArgs ea)
+        {
+            try
+            {
+                var json = Encoding.UTF8.GetString(ea.Body.ToArray());
+                var user = JsonConvert.DeserializeObject<User>(json);
+
+                if (user is null)
+                {
+                    _logger.LogWarning("Received null or invalid user object.");
+                    _channel?.BasicNackAsync(ea.DeliveryTag, false, false);
+                    return;
+                }
+
+                await ProcessMessageAsync(user);
+                _channel?.BasicAckAsync(ea.DeliveryTag, false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to process message");
+                _channel?.BasicNackAsync(ea.DeliveryTag, false, false);
             }
         }
 
-        private async Task ProcessMessageAsync(User message)
+        private async Task ProcessMessageAsync(User user)
         {
             using var scope = _serviceProvider.CreateScope();
             var repository = scope.ServiceProvider.GetRequiredService<IUserDatabaseService>();
-
-            try
-            {
-                await repository.UpdateUser(message);
-                _logger.LogInformation("Successfully processed message: AddNewUserAsync.");
-            }
-            catch (Exception e)
-            {
-                _logger.LogError("Error processing message: {ErrorMessage}", e.Message);
-            }
-        }
-
-        private Task RabbitMQ_ConnectionShutdown(object? sender, ShutdownEventArgs e)
-        {
-            _logger.LogWarning("Connection Shutdown");
-            Console.WriteLine("--> Connection Shutdown");
-            return Task.CompletedTask;
+            await repository.UpdateUser(user);
+            _logger.LogInformation("User updated successfully: {UserId}", user.Id);
         }
 
         public override void Dispose()
         {
-            _channel?.CloseAsync().Wait();
-            _connection?.CloseAsync().Wait();
+            _channel?.CloseAsync();
+            _connection?.CloseAsync();
             base.Dispose();
         }
     }

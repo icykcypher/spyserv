@@ -2,9 +2,9 @@
 using UserService.Model;
 using Microsoft.IdentityModel.Tokens;
 using UserService.Services.JwtProvider;
+using UserService.SyncDataServices.Grpc;
 using Microsoft.AspNetCore.Authorization;
 using UserService.Services.Authentication;
-using UserService.Services.RolePermissionProvider;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UserService.ApiExtensions
@@ -40,7 +40,6 @@ namespace UserService.ApiExtensions
                         OnMessageReceived = context =>
                         {
                             context.Token = context.Request.Cookies["homka-lox"];
-
                             return Task.CompletedTask;
                         }
                     };
@@ -49,19 +48,16 @@ namespace UserService.ApiExtensions
             services.AddScoped<IPermissionService, PermissionService>();
             services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
-            services.AddSingleton<RolePermissionProviderService>();
-
-            services.AddScoped<IPermissionService, PermissionService>();
-            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-
             services.AddAuthorization(async options =>
             {
-                var rolePermissions = await GetRolePermissionsFromGrpc(services);
+                var serviceProvider = services.BuildServiceProvider();
+                var seeder = serviceProvider.GetRequiredService<GrpcUserCommunicationService>();
+                var roles = await seeder.SeedAndGetRolesAsync();
 
-                foreach (var rolePermission in rolePermissions)
+                foreach (var role in roles)
                 {
-                    var roleName = rolePermission.Name;
-                    var permissions = rolePermission.Permissions;
+                    var roleName = role.Name;
+                    var permissions = role.Permissions;
 
                     options.AddPolicy($"{roleName}Policy", policy =>
                     {
@@ -72,18 +68,9 @@ namespace UserService.ApiExtensions
             });
         }
 
-        private static async Task<List<RoleEntity>> GetRolePermissionsFromGrpc(IServiceCollection services)
-        {
-            var serviceProvider = services.BuildServiceProvider();
-            var rolePermissionsProvider = serviceProvider.GetRequiredService<RolePermissionProviderService>();
-            var roles = await rolePermissionsProvider.GetRolesAsync();
-
-            return roles.ToList();
-        }
-
         private static List<RoleEntity> GetRoleEntities(ICollection<PermissionEntity> permissions)
             => permissions
-            .SelectMany(p => p.Roles ?? Enumerable.Empty<RoleEntity>())
-            .ToList();
+                .SelectMany(p => p.Roles ?? Enumerable.Empty<RoleEntity>())
+                .ToList();
     }
 }

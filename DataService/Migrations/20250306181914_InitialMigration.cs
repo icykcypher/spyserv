@@ -122,6 +122,18 @@ namespace DataService.Migrations
                     { 2, "User" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "RolePermissionEntity",
+                columns: new[] {"RoleId", "PermissionId"},
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 1, 2 },
+                    { 1, 3 },
+                    { 1, 4 },
+                    { 2, 1 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissionEntity_PermissionId",
                 table: "RolePermissionEntity",

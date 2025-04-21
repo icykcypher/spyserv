@@ -39,10 +39,25 @@ namespace UserService.Controllers
                 _logger.LogError(e.Message);
                 return NoContent();
             }
+            catch (ArgumentOutOfRangeException e)
+            {
+                _logger.LogError(e.Message);
+
+                return StatusCode(403, "User with this email already exists.");
+            }
+            catch (ArgumentNullException e)
+            {
+                _logger.LogError(e.Message);
+
+                return BadRequest();
+            }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return StatusCode(500);
+
+                Console.WriteLine(e.ToString());
+
+                return StatusCode(500, e.ToString());
             }
         }
 
@@ -79,7 +94,7 @@ namespace UserService.Controllers
         {
             try
             {
-                var user = _busSubscriber.DeleteUserAsync(id);
+                var user = await _busSubscriber.DeleteUserAsync(id);
 
                 if (user is null) return NotFound();
 

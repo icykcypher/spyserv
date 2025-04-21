@@ -6,9 +6,12 @@ using UserService.MappingProfiles;
 using Microsoft.EntityFrameworkCore;
 using UserService.Services.JwtProvider;
 using Microsoft.AspNetCore.CookiePolicy;
-using UserService.Services.PasswordHasher;
 using UserService.SyncDataServices.Grpc;
+using Microsoft.AspNetCore.DataProtection;
+using UserService.Services.PasswordHasher;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using UserService.Services.UserManagmentService;
+using UserService.AsyncDataServices;
 
 namespace UserService
 {
@@ -18,6 +21,34 @@ namespace UserService
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var certPath = "/app/certs/devcert.pfx";
+            var certPassword = "myPassword123";
+
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(@"./app/certs/"));
+
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenAnyIP(8080, listenOptions =>
+                {
+                    listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                });
+
+                if (File.Exists(certPath))
+                {
+                    Console.WriteLine($"HTTPS certificate found at {certPath}");
+                    options.ListenAnyIP(8081, listenOptions =>
+                    {
+                        listenOptions.UseHttps(certPath, certPassword);
+                        listenOptions.Protocols = HttpProtocols.Http2;
+                    });
+                }
+                else
+                {
+                    Console.WriteLine($"HTTPS certificate NOT found at {certPath}");
+                }
+            });
             Log.Logger = new LoggerConfiguration()
              .WriteTo.File(StaticClaims.PathToLogs, rollingInterval: RollingInterval.Day)
              .CreateLogger();
@@ -41,9 +72,6 @@ namespace UserService
 
             builder.Services.AddSingleton(Log.Logger);
             builder.Services.AddSingleton<Serilog.Extensions.Hosting.DiagnosticContext>();
-            builder.Services.AddScoped<IRoleGrpcService, RoleGrpcService>();
-            builder.Services.AddScoped<IPermissionGrpcService, PermissionGrpcService>();
-            builder.Services.AddScoped<IAuthorizationGrpcService, AuthorizationGrpcService>();
 
             builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
             builder.Services.Configure<Configurations.AuthorizationOptions>(builder.Configuration.GetSection(nameof(Configurations.AuthorizationOptions)));
@@ -52,6 +80,15 @@ namespace UserService
                 options.UseInMemoryDatabase("InMem"));
 
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
+
+            builder.Services.AddGrpc();
+            builder.Services.AddGrpcClient<GrpcUserService.GrpcUserServiceClient>(o =>
+            {
+                o.Address = new Uri(builder.Configuration["DataService"]!);
+            });
+            builder.Services.AddScoped<IGrpcUserCommunicationService, GrpcUserCommunicationService>();
+            builder.Services.AddScoped<GrpcUserCommunicationService>();
+            builder.Services.AddScoped<IUserMessageBusSubscriber, UserMessageBusSubscriber>();
 
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -84,6 +121,7 @@ namespace UserService
             app.UseCors("AllowAllOrigins");
 
             app.MapControllers();
+            app.MapGrpcService<GrpcUserCommunicationService>();
 
             app.Run();
         }
