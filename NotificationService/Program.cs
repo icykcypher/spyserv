@@ -1,7 +1,8 @@
 using Serilog;
+using Prometheus;
 using NotificationService.Dto;
 using NotificationService.Services;
-using Prometheus;
+using NotificationService.AsyncDataServices;
 
 namespace NotificationService
 {
@@ -22,7 +23,7 @@ namespace NotificationService
 
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
             builder.Services.AddScoped<INotificationManagerService, NotificationManagerService>();
-
+            builder.Services.AddHostedService<SendNotificationSubscriberService>();
             var app = builder.Build();
 
             app.UseMetricServer();

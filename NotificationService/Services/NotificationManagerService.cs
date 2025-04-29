@@ -2,6 +2,7 @@
 using MailKit.Net.Smtp;
 using NotificationService.Dto;
 using Microsoft.Extensions.Options;
+using MailKit.Security;
 
 namespace NotificationService.Services
 {
@@ -11,6 +12,8 @@ namespace NotificationService.Services
 
         public async Task<bool> SendMail(MailData Mail_Data)
         {
+            Console.WriteLine($"EmailFrom: {Mail_Data.EmailToName} | {_mailSettings.EmailId}");
+
             try
             {
                 var emailMessage = new MimeMessage();
@@ -29,7 +32,7 @@ namespace NotificationService.Services
 
                 var mailClient = new SmtpClient();
 
-                await mailClient.ConnectAsync(_mailSettings.Host, _mailSettings.Port, _mailSettings.UseSSL);
+                await mailClient.ConnectAsync(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
                 await mailClient.AuthenticateAsync(_mailSettings.EmailId, _mailSettings.Password);
                 await mailClient.SendAsync(emailMessage);
                 await mailClient.DisconnectAsync(true);

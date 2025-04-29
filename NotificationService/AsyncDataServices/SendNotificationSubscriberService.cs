@@ -19,7 +19,12 @@ namespace NotificationService.AsyncDataServices
 
         public override async Task StartAsync(CancellationToken cancellationToken)
         {
+            Console.WriteLine("--> Starting SendNotificationSubscriberService...");
             await InitializeRabbitMQ();
+
+            _ = Task.Run(() => ExecuteAsync(cancellationToken), cancellationToken);
+
+            Console.WriteLine("--> SendNotificationSubscriberService started successfully");
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +46,7 @@ namespace NotificationService.AsyncDataServices
                     var notificationMessage = Encoding.UTF8.GetString(body);
 
                     _logger.LogInformation("Event Received: {NotificationMessage}", notificationMessage);
-
+                    Console.WriteLine($"Event Received: {notificationMessage}");
                     var mailData = JsonConvert.DeserializeObject<MailData>(notificationMessage) ?? throw new Exception($"Cannot deserialize mail at: {nameof(SendNotificationSubscriberService)}");
 
                     await Task.Run(() => ProcessMessageAsync(mailData), stoppingToken);
@@ -55,31 +60,29 @@ namespace NotificationService.AsyncDataServices
                 }
             };
 
-            await _channel.BasicConsumeAsync(queue: _queueName, autoAck: false, consumer: consumer);
+            await _channel.BasicConsumeAsync(queue: _queueName, autoAck: false, consumer: consumer, cancellationToken: stoppingToken);
         }
 
         private async Task InitializeRabbitMQ()
         {
             try
             {
-#pragma warning disable CS8601, CS8604 // Possible null reference assignment.
                 var factory = new ConnectionFactory()
                 {
-                    HostName = _configuration["RabbitMQHost"],
-                    Port = int.Parse(_configuration["RabbitMQPort"])
+                    HostName = _configuration["RabbitMQHost"]!,
+                    Port = int.Parse(_configuration["RabbitMQPort"]!)
                 };
-#pragma warning restore CS8601, CS8604 // Possible null reference assignment.
 
                 _connection = await factory.CreateConnectionAsync();
                 _channel = await _connection.CreateChannelAsync();
 
-                await _channel.ExchangeDeclareAsync("trigger", ExchangeType.Fanout);
-                _queueName = _channel.QueueDeclareAsync().Result.QueueName;
-                await _channel.QueueBindAsync(_queueName, "trigger", "");
+                await _channel.ExchangeDeclareAsync("notification.direct", ExchangeType.Direct);
 
-                Console.WriteLine($"--> Listening on the Message Bus... queue: {_queueName}");
-                _logger.LogInformation("Listening on the Message Bus...");
+                _queueName = "notification_service_queue";
+                await _channel.QueueDeclareAsync(_queueName, durable: true, exclusive: false, autoDelete: false);
+                await _channel.QueueBindAsync(_queueName, "notification.direct", "send-email");
 
+                Console.WriteLine("Listening on queue '{0}' for 'send-email' routing key...", _queueName);
                 _connection.ConnectionShutdownAsync += RabbitMQ_ConnectionShutdown;
             }
             catch (Exception e)
@@ -88,6 +91,7 @@ namespace NotificationService.AsyncDataServices
                 throw;
             }
         }
+
 
         private async Task ProcessMessageAsync(MailData message)
         {

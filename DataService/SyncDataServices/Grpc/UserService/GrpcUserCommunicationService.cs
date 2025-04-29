@@ -79,6 +79,7 @@ namespace DataService.SyncDataServices.Grpc.UserService
             return new UserResponse
             {
                 Id = user.Id.ToString(),
+                PasswordHash = user.PasswordHash,
                 Name = user.Name,
                 Email = user.Email,
                 Roles = { user.Roles.Select(r => r.Name) }
