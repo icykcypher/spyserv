@@ -58,20 +58,15 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
             if (!_connection.IsOpen)
             {
                 _logger.Error("RabbitMQ Connection is closed, not sending message...");
-                Console.WriteLine("--> RabbitMQ Connection is closed, not sending message...");
                 return Guid.Empty;
             }
 
             var correlationId = Guid.NewGuid().ToString();
-
-            var replyQueue = await _channel.QueueDeclareAsync(queue: "",
-                durable: false,
-                exclusive: true,
-                autoDelete: true);
+            var replyQueue = await _channel.QueueDeclareAsync(queue: "", durable: false, exclusive: true, autoDelete: true);
             var replyQueueName = replyQueue.QueueName;
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
             var tcs = new TaskCompletionSource<Guid>();
+            var consumer = new AsyncEventingBasicConsumer(_channel);
 
             consumer.ReceivedAsync += (model, ea) =>
             {
@@ -101,14 +96,38 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
                 ReplyTo = replyQueueName
             };
 
-            var messageBody = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user));
+            var userBody = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user));
 
             await _channel.BasicPublishAsync(
                 exchange: "user.direct",
                 routingKey: "user.created",
                 mandatory: true,
                 basicProperties: properties,
-                body: messageBody
+                body: userBody
+            );
+
+            var mailData = new MailData
+            {
+                EmailToId = user.Email,
+                EmailToName = user.Name,
+                EmailSubject = "Welcome to SpyServ!",
+                EmailBody = $"Hello {user.Name}, thanks for registering at SpyServ!"
+            };
+
+            var mailBody = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mailData));
+
+            var mailProps = new BasicProperties
+            {
+                ContentType = "application/json",
+                DeliveryMode = DeliveryModes.Persistent
+            };
+
+            await _channel.BasicPublishAsync(
+                exchange: "notification.direct",
+                routingKey: "send-email",
+                mandatory: true,
+                basicProperties: mailProps,
+                body: mailBody
             );
 
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(20));
@@ -117,7 +136,6 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
             if (completed == timeoutTask)
             {
                 _logger.Error("Timeout waiting for response from DataService");
-                Console.WriteLine("Timeout waiting for response from DataService");
                 return Guid.Empty;
             }
 
@@ -125,8 +143,8 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Error sending message: {e.Message}");
             _logger.Error($"Error sending message: {e.Message}");
-            Console.WriteLine($"--> Error sending message: {e.Message}");
             return Guid.Empty;
         }
     }
