@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using DataService.SyncDataServices.Grpc.UserService;
 using DataService.Configurations.UsersConfigurations;
 using DataService.AsyncDataServices.UserServiceSubscribers;
+using DataService.SyncDataServices.Grpc.MonitoringService;
 
 namespace DataService
 {
@@ -56,6 +57,9 @@ namespace DataService
             builder.Services.AddDbContext<UserServiceDbContext>(options =>
                 options.UseNpgsql("ConnectionStrings:postgres"));
 
+            builder.Services.AddDbContext<MonitoringServiceDbContext>(options =>
+                options.UseNpgsql("ConnectionStrings:postgres"));
+
             builder.Services.AddGrpc();
 
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
@@ -74,6 +78,9 @@ namespace DataService
                     Console.WriteLine("--> Staring Migration");
                     var context = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
                     context.Database.Migrate();
+
+                    var context2 = scope.ServiceProvider.GetRequiredService<MonitoringServiceDbContext>();
+                    context2.Database.Migrate();
                 }
 
                 Console.WriteLine("--> Migrated to the database");
@@ -99,7 +106,7 @@ namespace DataService
             Console.WriteLine("--> Controllers were mapped!");
 
             app.MapGrpcService<GrpcUserCommunicationService>();
-
+            app.MapGrpcService<GrpcMonitoringService>();
             app.Run();
         }
     }

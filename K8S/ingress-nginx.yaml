@@ -17,3 +17,10 @@ spec:
                 name: user-srv-clusterip-srv
                 port:
                   number: 25424
+          - path: /api/m
+            pathType: Prefix
+            backend:
+              service:
+                name: monitor-srv-clusterip-srv
+                port: 
+                  number: 32275
