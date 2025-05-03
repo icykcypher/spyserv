@@ -1,6 +1,6 @@
 ﻿using System.Text;
-using RabbitMQ.Client;
 using Newtonsoft.Json;
+using RabbitMQ.Client;
 using UserService.Model;
 using RabbitMQ.Client.Events;
 using UserService.Model.Requests;
@@ -9,9 +9,13 @@ using UserService.AsyncDataServices;
 public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
 {
     private readonly IConfiguration _configuration;
-    private readonly IConnection _connection;
-    private readonly IChannel _channel;
+    private readonly IConnection _connection = null!;
+    private readonly IChannel _channel = null!;
     private readonly Serilog.ILogger _logger;
+    private readonly string _replyQueueName;
+    private readonly string _exchangeName = "user.direct";
+
+    private AsyncEventingBasicConsumer _consumer = null!;
 
     public UserMessageBusSubscriber(IConfiguration configuration, Serilog.ILogger logger)
     {
@@ -31,10 +35,18 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
             _connection = factory.CreateConnectionAsync().Result;
             _channel = _connection.CreateChannelAsync().Result;
 
-            _channel.ExchangeDeclareAsync(exchange: "user.direct", type: ExchangeType.Direct, durable: true, autoDelete: false);
+            _channel.ExchangeDeclareAsync(exchange: _exchangeName, type: ExchangeType.Direct, durable: true, autoDelete: false);
             _connection.ConnectionShutdownAsync += RabbitMQ_ConnectionShutdown;
 
             Console.WriteLine("--> Connected to Message Bus");
+
+            // Create a reply queue once and reuse it
+            var replyQueue = _channel.QueueDeclareAsync(queue: "", durable: false, exclusive: true, autoDelete: true).Result;
+            _replyQueueName = replyQueue.QueueName;
+
+            // Set up the consumer for the reply queue once
+            _consumer = new AsyncEventingBasicConsumer(_channel);
+            _channel.BasicConsumeAsync(_replyQueueName, true, _consumer);
         }
         catch (Exception e)
         {
@@ -62,18 +74,16 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
             }
 
             var correlationId = Guid.NewGuid().ToString();
-            var replyQueue = await _channel.QueueDeclareAsync(queue: "", durable: false, exclusive: true, autoDelete: true);
-            var replyQueueName = replyQueue.QueueName;
-
             var tcs = new TaskCompletionSource<Guid>();
-            var consumer = new AsyncEventingBasicConsumer(_channel);
 
-            consumer.ReceivedAsync += (model, ea) =>
+            // Setup response listener
+            _consumer.ReceivedAsync += async (model, ea) =>
             {
                 if (ea.BasicProperties?.CorrelationId == correlationId)
                 {
                     var body = ea.Body.ToArray();
                     var response = JsonConvert.DeserializeObject<UserCreationResponse>(Encoding.UTF8.GetString(body));
+
                     if (response != null)
                     {
                         tcs.TrySetResult(response.UserId);
@@ -83,53 +93,29 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
                         tcs.TrySetException(new Exception("Invalid response from DataService"));
                     }
                 }
-                return Task.CompletedTask;
+                await Task.CompletedTask;
             };
-
-            await _channel.BasicConsumeAsync(queue: replyQueueName, autoAck: true, consumer: consumer);
 
             var properties = new BasicProperties
             {
                 ContentType = "application/json",
                 DeliveryMode = DeliveryModes.Persistent,
                 CorrelationId = correlationId,
-                ReplyTo = replyQueueName
+                ReplyTo = _replyQueueName
             };
 
             var userBody = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(user));
 
+            // Publish the message to DataService
             await _channel.BasicPublishAsync(
-                exchange: "user.direct",
+                exchange: _exchangeName,
                 routingKey: "user.created",
                 mandatory: true,
                 basicProperties: properties,
                 body: userBody
             );
 
-            var mailData = new MailData
-            {
-                EmailToId = user.Email,
-                EmailToName = user.Name,
-                EmailSubject = "Welcome to SpyServ!",
-                EmailBody = $"Hello {user.Name}, thanks for registering at SpyServ!"
-            };
-
-            var mailBody = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mailData));
-
-            var mailProps = new BasicProperties
-            {
-                ContentType = "application/json",
-                DeliveryMode = DeliveryModes.Persistent
-            };
-
-            await _channel.BasicPublishAsync(
-                exchange: "notification.direct",
-                routingKey: "send-email",
-                mandatory: true,
-                basicProperties: mailProps,
-                body: mailBody
-            );
-
+            // Timeout handling
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(20));
             var completed = await Task.WhenAny(tcs.Task, timeoutTask);
 
@@ -157,8 +143,8 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
         {
             if (_channel.IsOpen)
             {
-                _channel.CloseAsync();
-                _connection.CloseAsync();
+                _channel.CloseAsync().Wait();
+                _connection.CloseAsync().Wait();
             }
 
             _channel.Dispose();
