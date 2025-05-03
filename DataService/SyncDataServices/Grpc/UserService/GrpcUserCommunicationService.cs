@@ -1,18 +1,18 @@
-﻿using Grpc.Core;
-using DataService.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using DataService.Data;
 using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataService.SyncDataServices.Grpc.UserService
 {
-    public class GrpcUserCommunicationService(UserServiceDbContext repository) : GrpcUserService.GrpcUserServiceBase
+    public class GrpcUserCommunicationService(MonitoringUserServiceDbContext repository) : GrpcUserService.GrpcUserServiceBase
     {
-        private readonly UserServiceDbContext _repository = repository;
+        private readonly MonitoringUserServiceDbContext _repository = repository;
 
         public override Task<RolePermissionList> GetRolePermissions(Empty request, ServerCallContext context)
         {
             var list = new RolePermissionList();
-            
+
             _repository.RolePermissionEntity.ToList().ForEach(x =>
             {
                 list.RolePermissions.Add(new RolePermissionGrpcEntity

@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DataService.Migrations
 {
-    [DbContext(typeof(UserServiceDbContext))]
-    [Migration("20250306181914_InitialMigration")]
+    [DbContext(typeof(MonitoringUserServiceDbContext))]
+    [Migration("20250503193713_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -24,6 +24,56 @@ namespace DataService.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("DataService.Model.MonitoringModel.ClientApp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ClientApps");
+                });
+
+            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoringData", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientAppId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MonitoringData");
+                });
 
             modelBuilder.Entity("DataService.Model.UsersModel.PermissionEntity", b =>
                 {
@@ -106,6 +156,33 @@ namespace DataService.Migrations
                     b.HasIndex("PermissionId");
 
                     b.ToTable("RolePermissionEntity");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 1
+                        });
                 });
 
             modelBuilder.Entity("DataService.Model.UsersModel.User", b =>
@@ -150,6 +227,84 @@ namespace DataService.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserRoleEntity");
+                });
+
+            modelBuilder.Entity("DataService.Model.MonitoringModel.ClientApp", b =>
+                {
+                    b.HasOne("DataService.Model.UsersModel.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoringData", b =>
+                {
+                    b.OwnsOne("DataService.Model.MonitoringModel.CpuResultDto", "CpuResult", b1 =>
+                        {
+                            b1.Property<Guid>("MonitoringDataId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<double>("UsagePercent")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("MonitoringDataId");
+
+                            b1.ToTable("MonitoringData");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MonitoringDataId");
+                        });
+
+                    b.OwnsOne("DataService.Model.MonitoringModel.DiskResultDto", "DiskResult", b1 =>
+                        {
+                            b1.Property<Guid>("MonitoringDataId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Device")
+                                .IsRequired()
+                                .HasColumnType("text");
+
+                            b1.Property<double>("ReadMbps")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("WriteMbps")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("MonitoringDataId");
+
+                            b1.ToTable("MonitoringData");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MonitoringDataId");
+                        });
+
+                    b.OwnsOne("DataService.Model.MonitoringModel.MemoryResultDto", "MemoryResult", b1 =>
+                        {
+                            b1.Property<Guid>("MonitoringDataId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<double>("TotalMemoryMb")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double>("UsedPercent")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("MonitoringDataId");
+
+                            b1.ToTable("MonitoringData");
+
+                            b1.WithOwner()
+                                .HasForeignKey("MonitoringDataId");
+                        });
+
+                    b.Navigation("CpuResult");
+
+                    b.Navigation("DiskResult");
+
+                    b.Navigation("MemoryResult");
                 });
 
             modelBuilder.Entity("DataService.Model.UsersModel.RolePermissionEntity", b =>

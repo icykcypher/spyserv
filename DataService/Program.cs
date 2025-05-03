@@ -9,6 +9,7 @@ using DataService.SyncDataServices.Grpc.UserService;
 using DataService.Configurations.UsersConfigurations;
 using DataService.AsyncDataServices.UserServiceSubscribers;
 using DataService.SyncDataServices.Grpc.MonitoringService;
+using DataService.AsyncDataServices.ClientAppServiceSubscribers;
 
 namespace DataService
 {
@@ -54,10 +55,7 @@ namespace DataService
             builder.Services.Configure<AuthorizationOptions>(
                 builder.Configuration.GetSection("AuthorizationOptions"));
 
-            builder.Services.AddDbContext<UserServiceDbContext>(options =>
-                options.UseNpgsql("ConnectionStrings:postgres"));
-
-            builder.Services.AddDbContext<MonitoringServiceDbContext>(options =>
+            builder.Services.AddDbContext<MonitoringUserServiceDbContext>(options =>
                 options.UseNpgsql("ConnectionStrings:postgres"));
 
             builder.Services.AddGrpc();
@@ -65,10 +63,15 @@ namespace DataService
             builder.Services.AddAutoMapper(typeof(UserMappingProfile));
             builder.Services.AddScoped<IUserStorageRepository, UserStorageRepository>();
             builder.Services.AddScoped<IUserDatabaseService, UserDatabaseService>();
+            builder.Services.AddScoped<IMonitoringStorageRepository, MonitoringStorageRepository>();
 
             builder.Services.AddSingleton<CreateUserSubscriberService>();
             builder.Services.AddHostedService(provider => provider.GetRequiredService<CreateUserSubscriberService>());
-            Console.WriteLine("CreateUserSubscriberService registered as HostedService");
+            builder.Services.AddSingleton<UpdateUserSubscriberService>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<UpdateUserSubscriberService>());
+            builder.Services.AddSingleton<CreateClientAppSubscriberService>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<CreateClientAppSubscriberService>());
+            Console.WriteLine("--> UserSubscriberService registered as HostedService");
 
             var app = builder.Build();
             try
@@ -76,11 +79,8 @@ namespace DataService
                 using (var scope = app.Services.CreateScope())
                 {
                     Console.WriteLine("--> Staring Migration");
-                    var context = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
+                    var context = scope.ServiceProvider.GetRequiredService<MonitoringUserServiceDbContext>();
                     context.Database.Migrate();
-
-                    var context2 = scope.ServiceProvider.GetRequiredService<MonitoringServiceDbContext>();
-                    context2.Database.Migrate();
                 }
 
                 Console.WriteLine("--> Migrated to the database");

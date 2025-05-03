@@ -39,8 +39,4 @@
 	  <Protobuf Include="Protos\monitoring.proto" GrpcServices="Server" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="AsyncDataServices\MonitoringServiceSubscibers\" />
-  </ItemGroup>
-
 </Project>

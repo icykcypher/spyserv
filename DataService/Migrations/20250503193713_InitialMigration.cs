@@ -15,6 +15,25 @@ namespace DataService.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "MonitoringData",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClientAppId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CpuResult_UsagePercent = table.Column<double>(type: "double precision", nullable: true),
+                    MemoryResult_UsedPercent = table.Column<double>(type: "double precision", nullable: true),
+                    MemoryResult_TotalMemoryMb = table.Column<double>(type: "double precision", nullable: true),
+                    DiskResult_Device = table.Column<string>(type: "text", nullable: true),
+                    DiskResult_ReadMbps = table.Column<double>(type: "double precision", nullable: true),
+                    DiskResult_WriteMbps = table.Column<double>(type: "double precision", nullable: true),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MonitoringData", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PermissionEntity",
                 columns: table => new
                 {
@@ -79,6 +98,29 @@ namespace DataService.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientApps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserEmail = table.Column<string>(type: "text", nullable: false),
+                    DeviceName = table.Column<string>(type: "text", nullable: false),
+                    IpAddress = table.Column<string>(type: "text", nullable: true),
+                    RegisteredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RefreshToken = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientApps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientApps_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserRoleEntity",
                 columns: table => new
                 {
@@ -124,15 +166,20 @@ namespace DataService.Migrations
 
             migrationBuilder.InsertData(
                 table: "RolePermissionEntity",
-                columns: new[] {"RoleId", "PermissionId"},
+                columns: new[] { "PermissionId", "RoleId" },
                 values: new object[,]
                 {
                     { 1, 1 },
-                    { 1, 2 },
-                    { 1, 3 },
-                    { 1, 4 },
-                    { 2, 1 }
+                    { 2, 1 },
+                    { 3, 1 },
+                    { 4, 1 },
+                    { 1, 2 }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClientApps_UserId",
+                table: "ClientApps",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissionEntity_PermissionId",
@@ -154,6 +201,12 @@ namespace DataService.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ClientApps");
+
+            migrationBuilder.DropTable(
+                name: "MonitoringData");
+
             migrationBuilder.DropTable(
                 name: "RolePermissionEntity");
 
