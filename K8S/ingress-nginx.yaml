@@ -17,7 +17,7 @@ spec:
                 name: user-srv-clusterip-srv
                 port:
                   number: 25424
-          - path: /api/m
+          - path: /api/m/
             pathType: Prefix
             backend:
               service:

@@ -7,7 +7,7 @@ using MonitoringService.SyncDataServices.Grpc;
 namespace MonitoringService.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/m")]
     public class MonitoringController(IMonitoringDataService service, GrpcMonitoringCommunicationService grpc, ClientAppMessageBusPublisher mes, JwtService jwt) : ControllerBase
     {
         private readonly IMonitoringDataService _service = service;
@@ -37,7 +37,7 @@ namespace MonitoringService.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(ClientAppRegisterDto dto)
+        public async Task<IActionResult> Register([FromBody] ClientAppRegisterDto dto)
         {
             if (!await _grpc.UserExistsAsync(dto.UserEmail))
                 return BadRequest("User does not exist.");

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using MonitoringService.AsyncDataServices;
 using MonitoringService.Services;
+using MonitoringService.SyncDataServices.Grpc;
 using Serilog;
 
 namespace MonitoringService
@@ -64,17 +66,18 @@ namespace MonitoringService
             builder.Services.AddSingleton(Log.Logger);
             builder.Services.AddSingleton<Serilog.Extensions.Hosting.DiagnosticContext>();
 
-            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IMonitoringDataService, MonitoringDataService>();
             builder.Services.AddScoped<JwtService>();
-
+            builder.Services.AddScoped<ClientAppMessageBusPublisher>();
             builder.Services.AddGrpc();
             builder.Services.AddGrpcClient<MonitoringGrpcService.MonitoringGrpcServiceClient>(o =>
             {
                 o.Address = new Uri(builder.Configuration["DataService"]!);
             });
+
+            builder.Services.AddScoped<GrpcMonitoringCommunicationService>();
 
             var app = builder.Build();
 

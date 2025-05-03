@@ -4,10 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataService.SyncDataServices.Grpc.MonitoringService
 {
-    public class GrpcMonitoringService(MonitoringServiceDbContext dbContext, UserServiceDbContext userDbContext) : MonitoringGrpcService.MonitoringGrpcServiceBase
+    public class GrpcMonitoringService(MonitoringUserServiceDbContext dbContext) : MonitoringGrpcService.MonitoringGrpcServiceBase
     {
-        private readonly MonitoringServiceDbContext _monitoringDbContext = dbContext;
-        private readonly UserServiceDbContext _userDbContext = userDbContext;
+        private readonly MonitoringUserServiceDbContext _monitoringDbContext = dbContext;
 
         public override async Task<MonitoringData> GetLatest(GetLatestRequest request, ServerCallContext context)
         {
@@ -43,7 +42,7 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
 
         public override async Task<UserExistsResponse> UserExists(UserExistsRequest request, ServerCallContext context)
         {
-            var exists = await _userDbContext.Users
+            var exists = await _monitoringDbContext.Users
                 .AnyAsync(c => c.Email == request.Email); 
 
             return new UserExistsResponse { Exists = exists };

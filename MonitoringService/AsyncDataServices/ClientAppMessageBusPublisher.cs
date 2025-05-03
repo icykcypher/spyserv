@@ -6,12 +6,50 @@ using MonitoringService.Dto;
 
 namespace MonitoringService.AsyncDataServices
 {
-    public class ClientAppMessageBusPublisher(IConfiguration configuration, Serilog.ILogger logger) : IDisposable
+    public class ClientAppMessageBusPublisher : IDisposable
     {
-        private readonly IConfiguration _configuration = configuration;
+        private readonly IConfiguration _configuration;
         private IConnection _connection = null!;
         private IChannel _channel = null!;
-        private readonly Serilog.ILogger _logger = logger;
+        private readonly Serilog.ILogger _logger;
+
+        public ClientAppMessageBusPublisher(IConfiguration configuration, Serilog.ILogger logger)
+        {
+            _configuration = configuration;
+            _logger = logger;
+
+            var factory = new ConnectionFactory()
+            {
+                HostName = _configuration["RabbitMQHost"]!,
+                Port = int.Parse(_configuration["RabbitMQPort"]!),
+                AutomaticRecoveryEnabled = true,
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
+            };
+
+            try
+            {
+                _connection = factory.CreateConnectionAsync().Result;
+                _channel = _connection.CreateChannelAsync().Result;
+
+                _channel.ExchangeDeclareAsync(exchange: "clientapp.direct", type: ExchangeType.Direct, durable: true, autoDelete: false);
+                _connection.ConnectionShutdownAsync += RabbitMQ_ConnectionShutdown;
+
+                Console.WriteLine("--> Connected to Message Bus");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"--> Could not connect to the Message Bus: {e.Message}");
+                _logger.Error($"Could not connect to the Message Bus: {e.Message}");
+                throw;
+            }
+        }
+
+        private Task RabbitMQ_ConnectionShutdown(object sender, ShutdownEventArgs @event)
+        {
+            Console.WriteLine($"--> RabbitMQ Connection Shutdown");
+            _logger.Error($"RabbitMQ Connection Shutdown");
+            return Task.CompletedTask;
+        }
 
         public async Task<Guid> SendNewClientAppAsync(ClientApp clientApp)
         {
