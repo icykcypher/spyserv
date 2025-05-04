@@ -10,16 +10,19 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
 
         public override async Task<MonitoringData> GetLatest(GetLatestRequest request, ServerCallContext context)
         {
-            var clientAppId = Guid.Parse(request.ClientAppId);
-
             var latestMonitoringData = await _monitoringDbContext.MonitoringData
-                .Where(m => m.ClientAppId == clientAppId)
-                .OrderByDescending(m => m.Timestamp) 
+                .Where(m =>
+                    m.ClientApp.DeviceName.ToLower() == request.DeviceName.ToLower() &&
+                    m.ClientApp.UserEmail.ToLower() == request.UserEmail.ToLower())
+                .OrderByDescending(m => m.Timestamp)
                 .FirstOrDefaultAsync();
+
+            Console.WriteLine(request.DeviceName);
+            Console.WriteLine(request.UserEmail);
 
             if (latestMonitoringData == null)
             {
-                throw new RpcException(new Status(StatusCode.NotFound, "No monitoring data found for the given ClientAppId"));
+                throw new RpcException(new Status(StatusCode.NotFound, "No monitoring data found for the given device"));
             }
 
             return new MonitoringData
@@ -38,7 +41,6 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
                 }
             };
         }
-
 
         public override async Task<UserExistsResponse> UserExists(UserExistsRequest request, ServerCallContext context)
         {

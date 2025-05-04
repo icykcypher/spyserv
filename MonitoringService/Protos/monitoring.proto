@@ -26,7 +26,8 @@ message MonitoringData {
 }
 
 message GetLatestRequest {
-  string clientAppId = 1;
+  string userEmail = 1;
+  string deviceName = 2; 
 }
 
 message UserExistsRequest {

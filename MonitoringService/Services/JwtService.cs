@@ -31,13 +31,13 @@ namespace MonitoringService.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, clientApp.Id.ToString()),
-                new Claim(ClaimTypes.Email, clientApp.UserEmail),
-                new Claim(ClaimTypes.Name, clientApp.DeviceName), 
-                new Claim(ClaimTypes.Role, "User"),  
+                new Claim("UserEmail", clientApp.UserEmail),
+                new Claim(ClaimTypes.Name, clientApp.DeviceName),
+                new Claim(ClaimTypes.Role, "User"),
                 new Claim("deviceId", clientApp.DeviceName),
-                new Claim("loginSource", "web"),  
-                new Claim("iat", DateTime.UtcNow.ToString()),  
-                new Claim("exp_days", _jwtExpireDays.ToString()) 
+                new Claim("loginSource", "web"),
+                new Claim(JwtRegisteredClaimNames.Iat, ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+                new Claim("exp_days", _jwtExpireDays.ToString(), ClaimValueTypes.Integer64)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));

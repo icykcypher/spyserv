@@ -4,17 +4,17 @@
     {
         private readonly MonitoringGrpcService.MonitoringGrpcServiceClient _grpcClient = grpcClient;
 
-        public async Task<MonitoringData?> GetLatestMonitoringDataAsync(string clientAppId)
+        public async Task<MonitoringData?> GetLatestMonitoringDataAsync(string userEmail, string deviceName)
         {
             var request = new GetLatestRequest
             {
-                ClientAppId = clientAppId
+                UserEmail = userEmail,
+                DeviceName = deviceName
             };
 
             var response = await _grpcClient.GetLatestAsync(request);
 
-            if (response == null)
-                return null;
+            ArgumentNullException.ThrowIfNull(response);
 
             return new MonitoringData
             {

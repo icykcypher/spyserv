@@ -3,17 +3,18 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using MonitoringService.Dto;
+using System.Threading.Tasks;
 
 namespace MonitoringService.AsyncDataServices
 {
-    public class ClientAppMessageBusPublisher : IDisposable
+    public class MonitoringMessageBusPublisher : IDisposable
     {
         private readonly IConfiguration _configuration;
         private IConnection _connection = null!;
         private IChannel _channel = null!;
         private readonly Serilog.ILogger _logger;
 
-        public ClientAppMessageBusPublisher(IConfiguration configuration, Serilog.ILogger logger)
+        public MonitoringMessageBusPublisher(IConfiguration configuration, Serilog.ILogger logger)
         {
             _configuration = configuration;
             _logger = logger;
@@ -81,6 +82,7 @@ namespace MonitoringService.AsyncDataServices
 
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(clientApp));
 
+            
             await _channel.BasicPublishAsync(
                 exchange: "clientapp.direct",
                 routingKey: "clientapp.created",
@@ -113,8 +115,37 @@ namespace MonitoringService.AsyncDataServices
 
         public void Dispose()
         {
-            _channel.CloseAsync();
-            _connection.CloseAsync();
+            _channel.CloseAsync().Wait();
+            _connection.CloseAsync().Wait();
+        }
+
+        public async Task PublishMonitoringDataAsync(string userEmail, string deviceName, Dto.MonitoringData data)
+        {
+            var messageObj = new MonitoringMessageDto
+            {
+                UserEmail = userEmail,
+                DeviceName = deviceName,
+                Data = data
+            };
+
+            var message = JsonConvert.SerializeObject(messageObj);
+            var body = Encoding.UTF8.GetBytes(message);
+
+            var properties = new BasicProperties
+            {
+                ContentType = "application/json",
+                DeliveryMode = DeliveryModes.Persistent
+            };
+
+            await _channel.BasicPublishAsync(
+                exchange: "monitoring.data",
+                routingKey: "monitoring.update",
+                basicProperties: properties,
+                body: body,
+                mandatory: true
+            );
+
+            Console.WriteLine("--> Monitoring data published to RabbitMQ.");
         }
     }
 }

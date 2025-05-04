@@ -1,10 +1,10 @@
+using Serilog;
+using MonitoringService.Services;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using MonitoringService.AsyncDataServices;
-using MonitoringService.Services;
 using MonitoringService.SyncDataServices.Grpc;
-using Serilog;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace MonitoringService
 {
@@ -70,7 +70,7 @@ namespace MonitoringService
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<IMonitoringDataService, MonitoringDataService>();
             builder.Services.AddScoped<JwtService>();
-            builder.Services.AddScoped<ClientAppMessageBusPublisher>();
+            builder.Services.AddScoped<MonitoringMessageBusPublisher>();
             builder.Services.AddGrpc();
             builder.Services.AddGrpcClient<MonitoringGrpcService.MonitoringGrpcServiceClient>(o =>
             {

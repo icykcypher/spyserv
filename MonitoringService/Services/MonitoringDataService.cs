@@ -1,37 +1,26 @@
-﻿using MonitoringService.Dto;
+﻿using MonitoringService.AsyncDataServices;
+using MonitoringService.SyncDataServices.Grpc;
 
 namespace MonitoringService.Services
 {
-    public class MonitoringDataService : IMonitoringDataService
+    public class MonitoringDataService(
+        MonitoringMessageBusPublisher messageBus,
+        GrpcMonitoringCommunicationService grpcClient) : IMonitoringDataService
     {
-        public async Task UpdateDataAsync(MonitoringData data)
+        private readonly MonitoringMessageBusPublisher _messageBus = messageBus;
+        private readonly GrpcMonitoringCommunicationService _grpcClient = grpcClient;
+
+        public async Task UpdateDataAsync(string userEmail, string deviceName, Dto.MonitoringData data)
         {
-            //var current = await _db.MonitoringData.FirstOrDefaultAsync();
+            ArgumentNullException.ThrowIfNull(data);
 
-            //if (current == null)
-            //{
-            //    _db.MonitoringData.Add(Map(data));
-            //}
-            //else
-            //{
-            //    current.CpuUsage = data.CpuResult?.UsagePercent ?? 0;
-            //    current.MemoryUsed = data.MemoryResult?.UsedPercent ?? 0;
-            //    current.MemoryTotal = data.MemoryResult?.TotalMemoryMb ?? 0;
-            //    current.DiskDevice = data.DiskResult?.Device ?? string.Empty;
-            //    current.DiskRead = data.DiskResult?.ReadMbps ?? 0;
-            //    current.DiskWrite = data.DiskResult?.WriteMbps ?? 0;
-            //    current.UpdatedAt = DateTime.UtcNow;
-            //}
-
-            //await _db.SaveChangesAsync();
+            await _messageBus.PublishMonitoringDataAsync(userEmail, deviceName, data);
         }
 
-        public async Task<MonitoringData?> GetLatestAsync()
-        {
-            //var current = await _db.MonitoringData.FirstOrDefaultAsync();
-            //return MapToDto(current);
 
-            return null;
+        public async Task<MonitoringData?> GetLatestAsync(string userEmail, string deviceName)
+        {
+            return await _grpcClient.GetLatestMonitoringDataAsync(userEmail, deviceName);
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using DataService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataService.Migrations
 {
     [DbContext(typeof(MonitoringUserServiceDbContext))]
-    partial class MonitoringUserServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504153556_AddedRelationUserClientApp")]
+    partial class AddedRelationUserClientApp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -10,6 +10,7 @@ using DataService.Configurations.UsersConfigurations;
 using DataService.AsyncDataServices.UserServiceSubscribers;
 using DataService.SyncDataServices.Grpc.MonitoringService;
 using DataService.AsyncDataServices.ClientAppServiceSubscribers;
+using DataService.AsyncDataServices.MonitoringServiceSubscibers;
 
 namespace DataService
 {
@@ -71,6 +72,8 @@ namespace DataService
             builder.Services.AddHostedService(provider => provider.GetRequiredService<UpdateUserSubscriberService>());
             builder.Services.AddSingleton<CreateClientAppSubscriberService>();
             builder.Services.AddHostedService(provider => provider.GetRequiredService<CreateClientAppSubscriberService>());
+            builder.Services.AddSingleton<MonitoringDataSubscriber>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<MonitoringDataSubscriber>());
             Console.WriteLine("--> UserSubscriberService registered as HostedService");
 
             var app = builder.Build();

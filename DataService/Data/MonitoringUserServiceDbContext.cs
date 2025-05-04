@@ -61,11 +61,19 @@ namespace DataService.Data
             modelBuilder.Entity<ClientApp>()
                 .HasKey(c => c.Id);
 
-            //modelBuilder.Entity<ClientApp>()
-            //    .HasOne<User>()
-            //    .WithMany()
-            //    .HasForeignKey(c => c.User.Id)
-            //    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ClientApp>()
+                .Property(c => c.UserEmail)
+                .IsRequired()
+                .HasMaxLength(40);
+
+            modelBuilder.Entity<ClientApp>()
+                .HasIndex(c => c.DeviceName);
+
+            modelBuilder.Entity<ClientApp>()
+                 .HasOne(c => c.User)
+                 .WithMany(u => u.ClientApps)
+                 .HasForeignKey(c => c.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Model.MonitoringModel.MonitoringData>(entity =>
             {

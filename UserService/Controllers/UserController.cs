@@ -61,32 +61,32 @@ namespace UserService.Controllers
             }
         }
 
-        //[Authorize]
-        //[HttpGet("{id:guid}")]
-        //public async Task<IActionResult> GetUserById()
-        //{
-        //    try
-        //    {
-        //        var handler = new JwtSecurityTokenHandler();
-        //        var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
-        //        var userId = Guid.Parse(jwtToken?.Claims?.First(c => c.Type == "id")?.Value ?? throw new ArgumentNullException());
+        [Authorize]
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetUserById()
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+                var userId = Guid.Parse(jwtToken?.Claims?.First(c => c.Type == "id")?.Value ?? throw new ArgumentNullException());
 
-        //        var user = await _userStorageRepository.GetUserByIdAsync(userId);
-        //        if (user is null) return NotFound();
+                var user = await _userStorageRepository.GetUserByIdAsync(userId);
+                if (user is null) return NotFound();
 
-        //        var userDto = _mapper.Map<UserDto>(user);
+                var userDto = _mapper.Map<UserDto>(user);
 
-        //        return Ok(new { Message = "1 User was found", Data = userDto });
-        //    }
-        //    catch (ArgumentNullException)
-        //    {
-        //        return NotFound();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return StatusCode(500, e.Message);
-        //    }
-        //}
+                return Ok(new { Message = "1 User was found", Data = userDto });
+            }
+            catch (ArgumentNullException)
+            {
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+        }
 
         [Authorize]
         [HttpDelete("{id:guid}")]
