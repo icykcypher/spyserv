@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <link rel="stylesheet" href="Sign_in.css">
+</head>
+<body>
+  <div class="form-box">
+    <form id="signin-form">
+      <label for="signin-username">Username or email address</label>
+      <input type="text" id="signin-username" placeholder="Enter your username or email" required>
+      
+      <div class="password-row">
+        <label for="signin-password">Password</label>
+        <a href="#" class="forgot-password">Forgot password?</a>
+      </div>
+      <input type="password" id="signin-password" placeholder="Enter your password" required>
+      
+      <button type="submit" class="btn">Sign in</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('signin-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('signin-username').value.trim();
+      const password = document.getElementById('signin-password').value;
+
+      try {
+        const response = await fetch('http://spyserv.dev/api/u/sign-in', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                Email: email,
+                Password: password
+              })
+            });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert('Error: ' + (errorData.message || response.statusText));
+          return;
+        }
+
+        const data = await response.json();
+        console.log('Success:', data);
+        window.location.href = '/www/Frame1/Frame1.html';
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Something went wrong. Please try again later.');
+      }
+    });
+  </script>
+</body>
+</html>

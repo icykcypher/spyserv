@@ -4,14 +4,13 @@ using UserService.Static;
 using UserService.ApiExtensions;
 using UserService.MappingProfiles;
 using Microsoft.EntityFrameworkCore;
+using UserService.AsyncDataServices;
 using UserService.Services.JwtProvider;
-using Microsoft.AspNetCore.CookiePolicy;
 using UserService.SyncDataServices.Grpc;
 using Microsoft.AspNetCore.DataProtection;
 using UserService.Services.PasswordHasher;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using UserService.Services.UserManagmentService;
-using UserService.AsyncDataServices;
 
 namespace UserService
 {
@@ -105,20 +104,18 @@ namespace UserService
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseCookiePolicy(new CookiePolicyOptions()
+            //{
+            //    MinimumSameSitePolicy = SameSiteMode.Strict,
+            //    HttpOnly = HttpOnlyPolicy.Always,
+            //    Secure = CookieSecurePolicy.Always
+            //});
 
-            app.UseCookiePolicy(new CookiePolicyOptions()
-            {
-                MinimumSameSitePolicy = SameSiteMode.Strict,
-                HttpOnly = HttpOnlyPolicy.Always,
-                Secure = CookieSecurePolicy.Always
-            });
+            app.UseCors("AllowAllOrigins");
 
             app.UseAuthentication();
 
             app.UseAuthorization();
-
-            app.UseCors("AllowAllOrigins");
 
             app.MapControllers();
             app.MapGrpcService<GrpcUserCommunicationService>();

@@ -1,0 +1,17 @@
+{
+  "Debug": {
+    "Pathes": {
+      "SpyservApi": "../",
+      "SpyservWatcher": "../"
+    }
+  },
+  "Release": {
+    "Pathes": {
+      "SpyservApi": "../",
+      "SpyservWatcher": "../"
+    }
+  },
+  "MonitoredApps": [
+
+  ]
+}

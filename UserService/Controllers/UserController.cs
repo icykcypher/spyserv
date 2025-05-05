@@ -5,6 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using UserService.AsyncDataServices;
 using UserService.Services.UserManagmentService;
+using Microsoft.AspNetCore.Cors;
 
 namespace UserService.Controllers
 {
@@ -26,6 +27,7 @@ namespace UserService.Controllers
         }
 
         [HttpPost("sign-up")]
+        [EnableCors("AllowAllOrigins")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
         {
             try
@@ -61,34 +63,35 @@ namespace UserService.Controllers
             }
         }
 
+        //[Authorize]
+        //[HttpGet("{id:guid}")]
+        //public async Task<IActionResult> GetUserById()
+        //{
+        //    try
+        //    {
+        //        var handler = new JwtSecurityTokenHandler();
+        //        var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+        //        var userId = Guid.Parse(jwtToken?.Claims?.First(c => c.Type == "id")?.Value ?? throw new ArgumentNullException());
+
+        //        var user = await _userStorageRepository.GetUserByIdAsync(userId);
+        //        if (user is null) return NotFound();
+
+        //        var userDto = _mapper.Map<UserDto>(user);
+
+        //        return Ok(new { Message = "1 User was found", Data = userDto });
+        //    }
+        //    catch (ArgumentNullException)
+        //    {
+        //        return NotFound();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return StatusCode(500, e.Message);
+        //    }
+        //}
+
         [Authorize]
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetUserById()
-        {
-            try
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
-                var userId = Guid.Parse(jwtToken?.Claims?.First(c => c.Type == "id")?.Value ?? throw new ArgumentNullException());
-
-                var user = await _userStorageRepository.GetUserByIdAsync(userId);
-                if (user is null) return NotFound();
-
-                var userDto = _mapper.Map<UserDto>(user);
-
-                return Ok(new { Message = "1 User was found", Data = userDto });
-            }
-            catch (ArgumentNullException)
-            {
-                return NotFound();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
-
-        [Authorize]
+        [EnableCors("AllowAllOrigins")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteUserById([FromRoute] Guid id)
         {
@@ -111,6 +114,7 @@ namespace UserService.Controllers
         }
 
         [HttpPost("sign-in")]
+        [EnableCors("AllowAllOrigins")]
         public async Task<IActionResult> SignIn([FromBody] SignInUserDto signInUser)
         {
             try
