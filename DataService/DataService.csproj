@@ -11,6 +11,12 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+    <PackageReference Include="Grpc" Version="2.46.6" />
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.70.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.71.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
@@ -29,14 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="SyncDataServices\MonitoringServiceGrpc\" />
-    <Folder Include="SyncDataServices\UserServiceGrpc\" />
-  </ItemGroup>
-
-  <ItemGroup>
-	  <Protobuf Include="Protos\role.proto" GrpcServices="Server" />
-	  <Protobuf Include="Protos\permission.proto" GrpcServices="Server" />
 	  <Protobuf Include="Protos\authorization.proto" GrpcServices="Server" />
+	  <Protobuf Include="Protos\monitoring.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

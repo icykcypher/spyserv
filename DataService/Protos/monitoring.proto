@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataService";
+
+package monitoring;
+
+message CpuResult {
+  double usagePercent = 1;
+}
+
+message MemoryResult {
+  double usedPercent = 1;
+  double totalMemoryMb = 2;
+}
+
+message DiskResult {
+  string device = 1;
+  double readMbps = 2;
+  double writeMbps = 3;
+}
+
+message MonitoringData {
+  CpuResult cpuResult = 1;
+  MemoryResult memoryResult = 2;
+  DiskResult diskResult = 3;
+}
+
+message GetLatestRequest {
+  string userEmail = 1;
+  string deviceName = 2; 
+}
+
+message UserExistsRequest {
+  string email = 1;
+}
+
+message UserExistsResponse {
+  bool exists = 1;
+}
+
+service MonitoringGrpcService {
+  rpc GetLatest(GetLatestRequest) returns (MonitoringData);
+  rpc UserExists(UserExistsRequest) returns (UserExistsResponse);
+}

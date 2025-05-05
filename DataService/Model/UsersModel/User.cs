@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using DataService.Model.MonitoringModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataService.Model.UsersModel
@@ -23,5 +24,6 @@ namespace DataService.Model.UsersModel
         public required string PasswordHash { get; set; }
 
         public ICollection<RoleEntity> Roles { get; set; } = [];
+        public ICollection<ClientApp> ClientApps { get; set; } = [];
     }
 }

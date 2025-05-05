@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: user-srv-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/log-level: debug
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:12345"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: spyserv.dev
+      http:
+        paths:
+          - path: /api/u/
+            pathType: Prefix
+            backend:
+              service:
+                name: user-srv-clusterip-srv
+                port:
+                  number: 25424
+          - path: /api/m/
+            pathType: Prefix
+            backend:
+              service:
+                name: monitor-srv-clusterip-srv
+                port: 
+                  number: 32275
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: spyserv-frontend-clusterip-srv
+                port:
+                  number: 43241

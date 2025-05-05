@@ -1,0 +1,160 @@
+@font-face {
+  font-family: 'Roboto', sans-serif;
+  src: local('Roboto'), url('/fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 99%;
+  font-family: 'Roboto', sans-serif;
+  background-color: #0D1017;
+  color: #ffffff;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/*Navbar*/
+  
+.navbar {
+  font-size: 13px;
+  width: 100%;
+  display: flex;
+  background-color: #141B23;
+  padding: 10px 0;
+  justify-content: center; /* Центрує контент */
+  position: fixed;
+}
+
+.navbar-left {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-left a:hover {
+  color: #007bff;
+}
+
+.navbar-right {
+  font-size: 13px;
+  position: absolute;
+  right: 20px; /* Закріплює профіль справа */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 40px;
+  background-image: url('Generic avatar.png'); /* Шлях до зображення */
+  background-repeat: no-repeat;
+  background-position: 90px center; /* Розташування картинки */
+  background-size: 16px 16px; /* Розмір картинки */
+}
+
+.navbar-left a, .navbar-right a {
+  color: white;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+/*Main Content*/
+
+.nav-link {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.main-content {
+  width: 100%;
+  display: flex;
+  flex: 1;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  margin-left: 15%;
+}
+
+.circle {
+  width: 350px;
+  height: 350px;
+  background-color: #141B23;
+  border-radius: 50%;
+  margin-bottom: 30px;
+  margin-right: 18%;
+  justify-content: center;
+}
+
+.buttons {
+  padding: 30px;
+  display: flex;
+  gap: 20px;
+  margin-right: 18%;
+}
+
+.btn {
+  display: inline-block;
+  padding: 20px 20px 20px 40px;
+  margin: 5px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  text-decoration: none;
+  color: #ffffff;
+  -webkit-text-stroke: 1px #121212;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  height: 100px;
+  width: 260px;
+}
+
+#sign {
+  background-color: #007bff;
+  padding: 20px 20px 20px 48px;
+
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+/* Футер */
+.footer {
+  background-color: #0D1017;
+  padding: 0px 20px;
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  height: 40px;
+}
+
+.nav-link-footer {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #3E424B;
+}
+
+#nlf {
+  color: #555B67;
+}
+
+.nav-link-footer:hover {
+  text-decoration: underline;
+}

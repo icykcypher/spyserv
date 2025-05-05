@@ -17,7 +17,14 @@ namespace DataService.Configurations.UsersConfigurations
         {
             builder.HasKey(r => new { r.RoleId, r.PermissionId });
 
-            builder.HasData(ParseRolePermissions());
+            var list = ParseRolePermissions();
+
+            builder.HasData(list);
+
+            foreach (var item in list)
+            {
+                Console.WriteLine(item.PermissionId + " " + item.RoleId);
+            }
         }
 
         private List<RolePermissionEntity> ParseRolePermissions()

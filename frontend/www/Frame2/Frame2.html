@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard with Footer</title>
+  <link rel="stylesheet" href="Frame2.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Бокове меню -->
+    <div class="sidebar" id="sidebar">
+      <ul class="sidebar-nav">
+        <li id="main-title"><a href="#"  class="title-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+        <li ><a href="#" class="rockie-text">Lorem ipsum</a></li>
+      </ul>
+    </div>
+
+    <!-- Кнопка для бокового меню -->
+    <button class="sidebar-toggle" id="sidebarToggle"></button>
+
+    <!-- Навігаційний бар -->
+    <header class="navbar">
+      <div class="navbar-left">
+          <a href="/www/Authentication/Authentication.html">Get started</a>
+          <a href="#">Lorem Ipsum</a>
+          <a href="#">Lorem Ipsum</a>
+      </div>
+      <div class="navbar-right">
+          <a href="/www/Profile/Profile.html">Lorem Ipsum</a>
+          <div class="user-icon"></div>
+      </div>
+    </header>
+
+    <!-- Основний контент -->
+    <div class="main-content">
+      <!-- Таблиця -->
+      <div class="table-container">
+        <div class="actions">
+          <button class="add-button">Add</button>
+          <input type="text" class="search-bar" placeholder="Search">
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden" disabled>
+                <span class="checkbox-icon"></span>
+              </th>
+              <th class="table-craft"><span class="status-circle gray"></span></th>
+              <th class="table-craft">Name</th>
+              <th class="table-craft">CPU (%)</th>
+              <th class="table-craft">Memory (%)</th>
+              <th class="table-craft">Last started</th>
+              <th class="table-craft">Actions</th>
+            </tr>
+          </thead>
+            <!-- Повторювані рядки -->
+          <tbody>
+            <tr>
+              <td class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden">
+                <span class="checkbox-icon"></span>
+              </td>
+              <th class="table-craft"><span class="status-circle green"></span></th>
+              <td class="table-name">Lorem ipsum</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">Lorem ipsum</td>
+              <td class="table-action"><button class="icon"></button><button class="icon-2" ></button></td>
+            </tr>
+            <tr>
+              <td class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden">
+                <span class="checkbox-icon"></span>
+              </td>
+              <th class="table-craft"><span class="status-circle green"></span></th>
+              <td class="table-name"></span> Lorem ipsum</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">Lorem ipsum</td>
+              <td class="table-action"><button class="icon"></button><button class="icon-2" ></button></td>
+            </tr>
+            <tr>
+              <td class="custom-checkbox">
+                <input type="checkbox" class="checkbox-hidden">
+                <span class="checkbox-icon"></span>
+              </td>
+              <th class="table-craft"><span class="status-circle red"></span></th>
+              <td class="table-name">Lorem ipsum</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">0%</td>
+              <td class="table-craft">Lorem ipsum</td>
+              <td class="table-action"><button class="icon"></button><button class="icon-2" ></button></td>
+            </tr>
+            <!-- Нижні рядки, просто розмітка таблиці!! -->
+            <tr>
+              <td></td>
+              <th class="table-bord"><span class="status-circle noth"></span></th>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+              <td class="table-bord"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Графіки -->
+      <div class="charts-container">
+        <div class="chart-container">
+          <p class="chart-p">CPU usage:</p>
+          <canvas id="cpuChart" width="300" height="150"></canvas>
+      </div>
+      <div class="chart-container">
+          <p class="chart-p">Disk read/write:</p>
+          <canvas id="diskChart" width="300" height="150"></canvas>
+      </div>
+      <div class="chart-container">
+          <p class="chart-p">Memory usage:</p>
+          <canvas id="memoryChart" width="300" height="150"></canvas>
+      </div>
+      <div class="chart-container">
+          <p class="chart-p">Network I/O:</p>
+          <canvas id="networkChart" width="300" height="150"></canvas>
+      </div>
+      </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer">
+      <a href="#" id="nlf" class="nav-link-footer">© 2025 icykcypher</a>
+      <a href="#" class="nav-link-footer">Privacy Policy</a>
+      <a href="#" class="nav-link-footer">Terms of Use</a>
+      <a href="#" class="nav-link-footer">Contact</a>
+    </footer>
+  </div>
+
+  <script src="Frame2.js"></script>
+</body>
+</html>

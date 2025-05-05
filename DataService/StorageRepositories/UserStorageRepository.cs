@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataService.StorageRepositories
 {
-    public class UserStorageRepository(UserServiceDbContext DbContext, IMapper Mapper) : IUserStorageRepository
+    public class UserStorageRepository(MonitoringUserServiceDbContext DbContext, IMapper Mapper) : IUserStorageRepository
     {
-        private readonly UserServiceDbContext _dbContext = DbContext;
+        private readonly MonitoringUserServiceDbContext _dbContext = DbContext;
         private readonly IMapper _mapper = Mapper;
 
         public async Task<User?> AddNewUserAsync(User User)

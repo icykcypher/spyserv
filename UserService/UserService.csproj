@@ -9,9 +9,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Migrations\**" />
+	  <Content Remove="Migrations\**" />
+	  <EmbeddedResource Remove="Migrations\**" />
+	  <None Remove="Migrations\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Google.Protobuf" Version="3.29.3" />
+		<PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
 		<PackageReference Include="Grpc.Tools" Version="2.69.0">
 			<PrivateAssets>all</PrivateAssets>
@@ -31,12 +39,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Migrations\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Protobuf Include="Protos\authorization.proto" GrpcServices="Client" />
-		<Protobuf Include="Protos\permission.proto" GrpcServices="Client" />
-		<Protobuf Include="Protos\role.proto" GrpcServices="Client" />
 	</ItemGroup>
 </Project>
