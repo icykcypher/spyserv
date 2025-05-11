@@ -121,5 +121,60 @@ namespace MonitoringService.Controllers
             var apps = await _grpc.GetUserAppsAsync(userId);
             return Ok(apps);
         }
+
+        [EnableCors("AllowAllOrigins")]
+        [HttpGet("statuses/{deviceName}")]
+        public async Task<IActionResult> GetAppStatuses([FromRoute] string deviceName)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+
+            var emailClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type.Equals("UserEmail", StringComparison.OrdinalIgnoreCase));
+            if (emailClaim == null)
+                return Unauthorized("Token does not contain a valid 'UserEmail' claim.");
+
+            var userEmail = emailClaim.Value;
+
+            try
+            {
+                var statuses = await _grpc.GetAppStatusesAsync(userEmail, deviceName);
+                return Ok(statuses);
+            }
+            catch (RpcException ex)
+            {
+                return StatusCode(500, $"gRPC error: {ex.Status.Detail}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+        [EnableCors("AllowAllOrigins")]
+        [HttpPost("statuses/{deviceName}")]
+        public async Task<IActionResult> PostAppStatuses([FromRoute] string deviceName, [FromBody] AppStatusRequest request)
+        {
+            if (request.Statuses == null || request.Statuses.Count == 0)
+            {
+                return BadRequest("App statuses data is empty.");
+            }
+
+            try
+            {
+                await _messageBus.PublishAppStatusAsync(request.UserEmail, deviceName, request.Statuses);
+                return Ok("App statuses have been successfully submitted.");
+            }
+            catch (RpcException ex)
+            {
+                return StatusCode(500, $"gRPC error: {ex.Status.Detail}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
     }
 }

@@ -58,7 +58,7 @@
         if (app.link) a.href = app.link;
 
         a.innerHTML = `
-          <a class="item-text" href="../Frame2/Frame2.html">
+          <a class="item-text" href="../Frame2/Frame2.html?deviceName=${encodeURIComponent(app.deviceName)}">
             <h3>${app.deviceName}</h3>
             <p>${app.description}</p>
           </a>

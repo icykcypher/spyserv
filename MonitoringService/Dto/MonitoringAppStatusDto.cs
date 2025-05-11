@@ -1,4 +1,4 @@
-﻿namespace DataService.Model.MonitoringModel
+﻿namespace MonitoringService.Dto
 {
     public class MonitoringAppStatusDto
     {

@@ -53,9 +53,27 @@ message UserApp {
 message GetUserAppsResponse {
   repeated UserApp apps = 1;
 }
+message MonitoredAppStatusDto {
+  string appName = 1;
+  double cpuUsagePercent = 2;
+  double memoryUsagePercent = 3;
+  string lastStarted = 4;
+  string timestamp = 5;
+  bool isRunning = 6;
+}
+
+message GetAppStatusesRequest {
+  string userEmail = 1;
+  string deviceName = 2;
+}
+
+message GetAppStatusesResponse {
+  repeated MonitoredAppStatusDto statuses = 1;
+}
 
 service MonitoringGrpcService {
   rpc GetLatest(GetLatestRequest) returns (MonitoringData);
   rpc UserExists(UserExistsRequest) returns (UserExistsResponse);
-  rpc GetUserApps(GetUserAppsRequest) returns (GetUserAppsResponse); 
+  rpc GetUserApps(GetUserAppsRequest) returns (GetUserAppsResponse);
+  rpc GetAppStatuses(GetAppStatusesRequest) returns (GetAppStatusesResponse);
 }

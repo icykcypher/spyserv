@@ -115,6 +115,30 @@ public class UserMessageBusSubscriber : IUserMessageBusSubscriber, IDisposable
                 body: userBody
             );
 
+            var mailData = new MailData
+            {
+                EmailToId = user.Email,
+                EmailToName = user.Name,
+                EmailSubject = "Welcome to SpyServ!",
+                EmailBody = $"Hello {user.Name}, thanks for registering at SpyServ!"
+            };
+
+            var mailBody = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(mailData));
+
+            var mailProps = new BasicProperties
+            {
+                ContentType = "application/json",
+                DeliveryMode = DeliveryModes.Persistent
+            };
+
+            await _channel.BasicPublishAsync(
+                exchange: "notification.direct",
+                routingKey: "send-email",
+                mandatory: true,
+                basicProperties: mailProps,
+                body: mailBody
+            );
+
             // Timeout handling
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(20));
             var completed = await Task.WhenAny(tcs.Task, timeoutTask);

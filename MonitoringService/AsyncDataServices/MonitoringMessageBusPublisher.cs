@@ -147,5 +147,33 @@ namespace MonitoringService.AsyncDataServices
 
             Console.WriteLine("--> Monitoring data published to RabbitMQ.");
         }
+
+        public async Task PublishAppStatusAsync(string userEmail, string deviceName, List<AppStatusDto> statuses)
+        {
+            foreach (var status in statuses)
+            {
+                status.UserEmail = userEmail;
+                status.DeviceName = deviceName;
+                var message = JsonConvert.SerializeObject(status);
+                Console.WriteLine(message);
+                var body = Encoding.UTF8.GetBytes(message);
+
+                var properties = new BasicProperties
+                {
+                    ContentType = "application/json",
+                    DeliveryMode = DeliveryModes.Persistent
+                };
+
+                await _channel.BasicPublishAsync(
+                    exchange: "monitoring.apps.status",
+                    routingKey: "apps.status.update",
+                    basicProperties: properties,
+                    body: body,
+                    mandatory: true
+                );
+            }
+
+            Console.WriteLine("--> App statuses published to RabbitMQ.");
+        }
     }
 }

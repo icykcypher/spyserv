@@ -45,7 +45,7 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
         public override async Task<UserExistsResponse> UserExists(UserExistsRequest request, ServerCallContext context)
         {
             var exists = await _monitoringDbContext.Users
-                .AnyAsync(c => c.Email == request.Email); 
+                .AnyAsync(c => c.Email == request.Email);
 
             return new UserExistsResponse { Exists = exists };
         }
@@ -66,6 +66,35 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
                     Description = app.Description,
                     Status = app.IsActive ? "online" : "offline",
                     Link = $"http://localhost/apps/{app.Id}"
+                });
+            }
+
+            return response;
+        }
+
+        public override async Task<GetAppStatusesResponse> GetAppStatuses(GetAppStatusesRequest request, ServerCallContext context)
+        {
+            var statuses = await _monitoringDbContext.MonitoredAppStatuses
+                .Include(s => s.MonitoredApp)
+                .ThenInclude(a => a.ClientApp)
+                .Where(s =>
+                    s.MonitoredApp.ClientApp!.UserEmail.ToLower().Equals(request.UserEmail.ToLower()) &&
+                    s.MonitoredApp.ClientApp.DeviceName.ToLower().Equals(request.DeviceName.ToLower()))
+                .OrderByDescending(s => s.Timestamp)
+                .ToListAsync();
+
+            var response = new GetAppStatusesResponse();
+
+            foreach (var status in statuses)
+            {
+                response.Statuses.Add(new MonitoredAppStatusDto
+                {
+                    AppName = status.MonitoredApp.Name,
+                    CpuUsagePercent = status.CpuUsagePercent,
+                    MemoryUsagePercent = status.MemoryUsagePercent,
+                    LastStarted = status.LastStarted.ToString("o"),
+                    Timestamp = status.Timestamp.ToString("o"),
+                    IsRunning = status.IsRunning
                 });
             }
 

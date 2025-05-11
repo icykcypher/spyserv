@@ -55,5 +55,25 @@ namespace MonitoringService.SyncDataServices.Grpc
                 IsActive = app.Status == "online",
             }).ToList();
         }
+
+        public async Task<List<MonitoringAppStatusDto>> GetAppStatusesAsync(string userEmail, string deviceName)
+        {
+            var request = new GetAppStatusesRequest
+            {
+                UserEmail = userEmail,
+                DeviceName = deviceName
+            };
+
+            var response = await _grpcClient.GetAppStatusesAsync(request);
+
+            return response.Statuses.Select(status => new MonitoringAppStatusDto
+            {
+                AppName = status.AppName,
+                CpuUsagePercent = status.CpuUsagePercent,
+                MemoryUsagePercent = status.MemoryUsagePercent,
+                LastStarted = DateTime.Parse(status.LastStarted),
+                IsRunning = status.IsRunning,
+            }).ToList();
+        }
     }
 }

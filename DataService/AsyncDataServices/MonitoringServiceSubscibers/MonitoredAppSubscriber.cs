@@ -97,10 +97,11 @@ namespace DataService.AsyncDataServices.MonitoringServiceSubscibers
                         CpuUsagePercent = message.CpuUsagePercent,
                         MemoryUsagePercent = message.MemoryUsagePercent,
                         LastStarted = DateTime.UtcNow,
-                        Timestamp = DateTime.UtcNow
+                        Timestamp = DateTime.UtcNow,
+                        IsRunning = message.IsRunning,
                     };
                     {
-                        if (await dbContext.MonitoredAppStatuses.AnyAsync(x => x.MonitoredAppId == clientApp.Id))
+                        if (await dbContext.MonitoredAppStatuses.AnyAsync(x => x.MonitoredAppId == monitoredApp.Id))
                         {
                             dbContext.MonitoredAppStatuses.Update(entity);
                         }
