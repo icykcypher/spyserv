@@ -1,4 +1,6 @@
-﻿namespace MonitoringService.SyncDataServices.Grpc
+﻿using MonitoringService.Dto;
+
+namespace MonitoringService.SyncDataServices.Grpc
 {
     public class GrpcMonitoringCommunicationService(MonitoringGrpcService.MonitoringGrpcServiceClient grpcClient)
     {
@@ -34,6 +36,24 @@
             var response = await _grpcClient.UserExistsAsync(request);
 
             return response.Exists;
+        }
+
+        public async Task<List<ClientApp>> GetUserAppsAsync(string userId)
+        {
+            var request = new GetUserAppsRequest
+            {
+                UserId = userId
+            };
+
+            var response = await _grpcClient.GetUserAppsAsync(request);
+
+            return response.Apps.Select(app => new ClientApp
+            {
+                Id = Guid.Parse(app.AppId),
+                Description = app.Description,
+                DeviceName = app.AppName,
+                IsActive = app.Status == "online",
+            }).ToList();
         }
     }
 }

@@ -31,7 +31,8 @@ namespace DataService
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
-                    builder => builder.AllowAnyOrigin()
+                    builder => builder.WithOrigins("http://localhost:12345", "http://spyserv.dev", "https://localhost:12345", "https://spyserv.dev")
+                                      .AllowCredentials()
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });

@@ -3,6 +3,7 @@ using System;
 using DataService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataService.Migrations
 {
     [DbContext(typeof(MonitoringUserServiceDbContext))]
-    partial class MonitoringUserServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250511123814_ModifiedClientApp")]
+    partial class ModifiedClientApp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,61 +66,6 @@ namespace DataService.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ClientApps");
-                });
-
-            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoredApp", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientAppId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsRunning")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClientAppId");
-
-                    b.ToTable("MonitoredApps");
-                });
-
-            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoredAppStatus", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<double>("CpuUsagePercent")
-                        .HasColumnType("double precision");
-
-                    b.Property<DateTime>("LastStarted")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<double>("MemoryUsagePercent")
-                        .HasColumnType("double precision");
-
-                    b.Property<Guid>("MonitoredAppId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MonitoredAppId");
-
-                    b.ToTable("MonitoredAppStatuses");
                 });
 
             modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoringData", b =>
@@ -304,28 +252,6 @@ namespace DataService.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoredApp", b =>
-                {
-                    b.HasOne("DataService.Model.MonitoringModel.ClientApp", "ClientApp")
-                        .WithMany("MonitoredApps")
-                        .HasForeignKey("ClientAppId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ClientApp");
-                });
-
-            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoredAppStatus", b =>
-                {
-                    b.HasOne("DataService.Model.MonitoringModel.MonitoredApp", "MonitoredApp")
-                        .WithMany("StatusHistory")
-                        .HasForeignKey("MonitoredAppId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MonitoredApp");
-                });
-
             modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoringData", b =>
                 {
                     b.HasOne("DataService.Model.MonitoringModel.ClientApp", "ClientApp")
@@ -429,16 +355,6 @@ namespace DataService.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("DataService.Model.MonitoringModel.ClientApp", b =>
-                {
-                    b.Navigation("MonitoredApps");
-                });
-
-            modelBuilder.Entity("DataService.Model.MonitoringModel.MonitoredApp", b =>
-                {
-                    b.Navigation("StatusHistory");
                 });
 
             modelBuilder.Entity("DataService.Model.UsersModel.User", b =>

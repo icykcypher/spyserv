@@ -25,6 +25,7 @@ namespace UserService.Services.JwtProvider
             Claim[] claims =
             [
                 new("userId", user.Id.ToString()),
+                new("userEmail", user.Email.ToString()),
             ];
 
             var token = new JwtSecurityToken(

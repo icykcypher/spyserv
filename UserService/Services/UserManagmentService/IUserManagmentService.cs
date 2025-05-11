@@ -4,7 +4,7 @@ namespace UserService.Services.UserManagmentService
 {
     public interface IUserManagmentService
     {
-        Task<string> Login(SignInUserDto signInUserDto);
+        Task<(string, User)> Login(SignInUserDto signInUserDto);
         Task<User> Register(RegisterUserDto registerUserDto);
     }
 }

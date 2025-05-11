@@ -21,7 +21,7 @@ namespace UserService.Services.UserManagmentService
             var user = _mapper.Map<User>(registerUserDto);
 
             user.Roles.Add(new RoleEntity { });
-
+            
             user.PasswordHash = _passwordHasher.Generate(registerUserDto.Password);
 
             user.Id = await _messageBus.SendNewUserAsync(user);
@@ -31,7 +31,7 @@ namespace UserService.Services.UserManagmentService
             return user;
         }
 
-        public async Task<string> Login(SignInUserDto signInUserDto)
+        public async Task<(string, User)> Login(SignInUserDto signInUserDto)
         {
             var user = await _grpcService.GetUserByEmailAsync(signInUserDto.Email) ?? throw new InvalidOperationException();
 
@@ -40,7 +40,7 @@ namespace UserService.Services.UserManagmentService
 
             var token = _jwtProvider.GenerateToken(user);
 
-            return token;
+            return (token, user);
         }
     }
 }

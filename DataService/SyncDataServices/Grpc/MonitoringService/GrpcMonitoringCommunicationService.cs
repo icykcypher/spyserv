@@ -49,5 +49,27 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
 
             return new UserExistsResponse { Exists = exists };
         }
+
+        public override async Task<GetUserAppsResponse> GetUserApps(GetUserAppsRequest request, ServerCallContext context)
+        {
+            var apps = await _monitoringDbContext.ClientApps
+            .Where(app => app.UserId.ToString() == request.UserId)
+            .ToListAsync();
+
+            var response = new GetUserAppsResponse();
+            foreach (var app in apps)
+            {
+                response.Apps.Add(new UserApp
+                {
+                    AppId = app.Id.ToString(),
+                    AppName = app.DeviceName,
+                    Description = app.Description,
+                    Status = app.IsActive ? "online" : "offline",
+                    Link = $"http://localhost/apps/{app.Id}"
+                });
+            }
+
+            return response;
+        }
     }
 }

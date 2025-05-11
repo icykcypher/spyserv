@@ -20,11 +20,28 @@ spec:
           volumeMounts:
             - name: keys
               mountPath: /home/app/.aspnet/DataProtection-Keys
+            - name: certs
+              mountPath: /app/certs
+            - name: tls-secret
+              mountPath: /app/tls
+              readOnly: true
       volumes:
         - name: keys
           hostPath:
             path: /var/lib/data-protection-keys
             type: DirectoryOrCreate
+        - name: certs
+          hostPath:
+            path: /path/to/host/certs
+            type: DirectoryOrCreate
+        - name: tls-secret
+          secret:
+            secretName: user-srv-tls-secret
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
 ---
 apiVersion: v1
 kind: Service
@@ -37,5 +54,28 @@ spec:
   ports:
     - name: user-srv
       protocol: TCP
-      port: 25424 
+      port: 25424
       targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-srv-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: user-srv
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 32547
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-srv-tls-secret
+type: kubernetes.io/tls
+data:
+  tls.crt: MIIKWAIBAzCCChQGCSqGSIb3DQEHAaCCCgUEggoBMIIJ/TCCBe4GCSqGSIb3DQEHAaCCBd8EggXbMIIF1zCCBdMGCyqGSIb3DQEMCgECoIIE7jCCBOowHAYKKoZIhvcNAQwBAzAOBAjSfb4PNnDq5QICB9AEggTI29PjHV9rHj1CrT3ITne/Oc1ZcBtc3a/B8dPiY5aDbgrDbt2rXGTGl7tZydMakyO20EtPTwENcFc5OUKU/G507XpO2lBXZjWOxm/nc8eTSzyCXrDGSoBLhaXRj35keM7NqxNykfPcXZCp+MRS+DWwa2CRnCQCKx0oVaNJdsZAZR036f0EzO+2GfHKFyagnl7hwc9h7HphNB9V3t4sePNHEHbUBSOUjauMaeARDgzRAvmyoYCUftrWG2OIvz238rj0p9jP40meAjjkfaM9xHspZvhB3CBTEdS9VMN2y5wHVWFGHq+onkgcCT4QqiH3iD5NMCuKlUgEsQIAFYDP44GW+HkgqviM+PYQwWwpK2iPREvnW6kF5cidZGssTrGft7PRm/GrMhJYbOU/Wu1OhsGTnzuZDGZw4oRlITJ/20QfP6NiFs7tsDwt9wHTmZ5GPIjdKIhvWvZHcTQ3r/0hTB+ahSefZuMrkBEq1KY2VjTJ3FMUqHOwegDsIfqDjeXVLHFHElaq/Fz+UGs/UP9GQGXzYc22X8xQBYEB1ZIfgQB16s2v6rl6tUVvyoZkfKBxdzNPXXlvGOPRDmn1RUnX6Py067Hsb679IsrYaAUp8PzI4KWK90d6oGYQjr6CaVolQ6fT/xWBMc9xfBTStCSFgjBJY6VliUlyB9FzOuffOnkjOmR9Okr+7K6jyYJ/ZB1IOz6MTPrYvkgRGscb7Cy3wMB15u5siG3umHtyDRxH7+IBPBMHpPpXZkCdWL/y7asSSUr1APDhbEwPGtyodfjCY7lhD742k1M8n31mwK5xzKqNzudSbStst6fxtZdlDKk/6rScoVSnysyQm3YSptivr+CoD4N02pUcOmMmcnWRI4F0PLPlRGPNVUYc/Hwjm8lQ6oPjy1LVmMJgaPPUU+L6lmy99L62uSyoFoJt3CZAgKIYOpnuLULV1e3tTqFBQ5wyM3TJAdtXdVJaPxZRtuxbpOKG+Q+GIBwQoHB4JVn9zQjcX/IrNi/ZZatapacIKUZJs+CnohPUboQvJarfUTS2h4NuyuxsLPpd/VeGIvZUV/f/AyrQWelGuMlenVVtObydqypWUf2HLkyLb2BQBkD9DjjiBQnrVo5ggvTJc5ayUE7P9YSYfENlxiTY42WHtIAty3kwIJ2eG3ntU/UzSz+FW0RL0vEyWE1RTGDL6YchgY2Bjxuen+6fWU+XHnkKqfPWvi89Bo33MHa6mhzx16Mi912coBwDBrVs/eZ8q9YYcFa4sxlo6wZfUThWTGJ4yxDuuMhr6EO1qPDcQZmapqCAk8yWDsWkT2qIWJOCX5Q6Yp+QL/hQSbLUvDQqH0H26iMumJl2ZXpOLbTamwT2WuJ7aaQUf0XA978cuuuex8e/9Gdj8sUQwa3kVyqnCfExpB2sWlJzi5O4zrsIn8q7r0uSFzxtOeY7BdpllTz71lSmStqiswfnrLCSxEF2AaYPccMcZ711F894VbJ3dhSAPypGGJf+RGfk/Iu3ynRXkn8utVumj4y8mraTZygNZSP0QkFceD0kE4sFJhhrmRPWqbDaXMwOHOsGas7jIMW+fcaeqmR6fh0BtkEE6KPHWxY7E00CeBEkVJ7Ho0vCMZ5eePsuzmMWbSSjH7BUajqZMYHRMBMGCSqGSIb3DQEJFTEGBAQBAAAAMFsGCSqGSIb3DQEJFDFOHkwAewAyADQANQA5ADIARQAyADgALQBEADUAMwAxAC0ANAAxAEQARQAtADkAOABEADgALQAwADcANQAyADQARQA5AEUAMQBGADEAMAB9MF0GCSsGAQQBgjcRATFQHk4ATQBpAGMAcgBvAHMAbwBmAHQAIABTAG8AZgB0AHcAYQByAGUAIABLAGUAeQAgAFMAdABvAHIAYQBnAGUAIABQAHIAbwB2AGkAZABlAHIwggQHBgkqhkiG9w0BBwagggP4MIID9AIBADCCA+0GCSqGSIb3DQEHATAcBgoqhkiG9w0BDAEDMA4ECGG6iO90FYElAgIH0ICCA8D+c0ySMO1RTtah+5FLC0GlIWldHamq1GfFN1q0cfbZAoCRaJQOPu8IpIZKTmOhYXrHloUotnWJRiYmiQrLXakBXZDEG4sQoa5QNiS+3+6n/Bee+FxjgCQdEXGrlnyhoGE0At1IipSMrqFnHm0vxx+9k2+tjs/cP/mpspFVVFxci+VNqtsXgT4h9S+uOgAMqNsaRNhlxek6DCdF3rqJelX8jwyMVyjEGqXF6ZTwCEqFcPI33d4gOxclon597xGp74wVyFMK1wq8b3hWggQThzM90vLkxX6c+Rwsh2SQNrH3K2t+hGKoeXXhfL0bpMy4WXoHUvOwzSPD8Ax53DmHFsWXUFprQ78NJkqflBnBsPdKw5yVoNmnVCe8FMuTCUeKrn2fOXN/pfFqzf5rnwO3W5ZpZ68REMgdNE1EelnegHSrCbJ9pkr4jeolNTw0R9EICv9PefUi/6fFuiVQ5S3GXi6m0No8Ni4sKaNuZFotsnu4G292MkcN0TaSV1uP475FCzC63NTsWqaB5aL6CzoQQpQPdi1+EVP4KQiZHLQfFPqRq7AugVwSnyG9tLw9JDNKYRfGtAULwxqxrEWfFn1oAUE8xi6HN3jiv36OdCFS8opWfIWWcvrC/FuzXzzFwN7Ire8BbrVRxroTDjWLz7ibO/bOy/1QbdjTm5kdbYctvGIdl+qtg7J652OYfc41miAXq23Qo5XUtpAfthFDCEMa3CH3u2ObQvRxl07Nh4B2YZ32UPQfat1KG8NN/VSyaiBbdUwegPZr1vOIu0w83JHLqstKFaTCqiR4ZIghe7EjErRhTBdRteS7YVstCc5v9SCWDQTQOAkZiVCgQakwm5NRSMoGE7sFYKd6BkEXFtphoO6KrrBgiiDG3cGFxOBzRdzEXQbiqF6VvlAIDrmnRt1voGZMuOACkiCDbsyhiAtV9gA0aUmwZO8cDe133Xo6gTcL6SnR6bGH6ZuHYn0KMozBHPTK6ReqKKUpGTYgDY/7AmDz/+iV2lg8gEHatxNnya//ya9L3WlqCCwIaSiiGblzgZOsjeyKynKQFWVmTdEtzzZmWQxO/kmsAHPIQv473QqKMXcQLEBcX5Z1hbzAMTowYZA8MgHfYhVLwqBz39n/OI0Jkrq7wuI6FhKvSCjCru/yTZAtPBhUBcDyBq7PSegjuJDzqaAmTvWaTsCg4KfdBWIaV84zjpAYvQLViYBmAD4H077KLGjBIBCX7JD80liYxW6ZCfcUqgbp0ZZfmZpAJDyexYq2RL5lNEhD/IYDzGbm71QwOzAfMAcGBSsOAwIaBBQQGh6lvxC2Ssbj1Y0WQPn2zIJAAgQU6wc7+5r4QrhyAepdNi0u/k+Yph0CAgfQ
+  tls.key: bXlQYXNzd29yZDEyMw==

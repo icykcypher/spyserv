@@ -1,7 +1,6 @@
 using Serilog;
 using MonitoringService.Services;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.AspNetCore.DataProtection;
 using MonitoringService.AsyncDataServices;
 using MonitoringService.SyncDataServices.Grpc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -14,33 +13,12 @@ namespace MonitoringService
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var certPath = "/app/certs/devcert.pfx";
-            var certPassword = "myPassword123";
-
-            builder.Services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(@"./app/certs/"));
-
-
             builder.WebHost.ConfigureKestrel(options =>
             {
                 options.ListenAnyIP(8080, listenOptions =>
                 {
                     listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
                 });
-
-                if (File.Exists(certPath))
-                {
-                    Console.WriteLine($"HTTPS certificate found at {certPath}");
-                    options.ListenAnyIP(8081, listenOptions =>
-                    {
-                        listenOptions.UseHttps(certPath, certPassword);
-                        listenOptions.Protocols = HttpProtocols.Http2;
-                    });
-                }
-                else
-                {
-                    Console.WriteLine($"HTTPS certificate NOT found at {certPath}");
-                }
             });
             Log.Logger = new LoggerConfiguration()
              .WriteTo.File(@"/var/log/monitor-srv.log", rollingInterval: RollingInterval.Day)
@@ -49,9 +27,10 @@ namespace MonitoringService
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
-                    builder => builder.AllowAnyOrigin()
+                    builder => builder.WithOrigins("http://localhost:12345", "http://spyserv.dev", "https://localhost:12345", "https://spyserv.dev")
                                       .AllowAnyMethod()
-                                      .AllowAnyHeader());
+                                      .AllowAnyHeader()
+                                      .AllowCredentials());
             });
 
             builder.Services.AddControllers()
@@ -81,19 +60,20 @@ namespace MonitoringService
 
             var app = builder.Build();
 
+            app.UseCors("AllowAllOrigins");
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
             app.UseCookiePolicy(new CookiePolicyOptions()
             {
                 MinimumSameSitePolicy = SameSiteMode.Strict,
                 HttpOnly = HttpOnlyPolicy.Always,
-                Secure = CookieSecurePolicy.Always
+                Secure = CookieSecurePolicy.SameAsRequest
             });
-
-            app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
