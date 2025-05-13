@@ -11,67 +11,19 @@
     <!-- Навігаційний бар -->
     <header class="navbar">
       <div class="navbar-left">
-          <a href="/www/Authentication/Authentication.html">Get started</a>
+          <a href="../Authentication/Authentication.html">Get started</a>
           <a href="#">Lorem ipsum</a>
           <a href="#">Lorem ipsum</a>
       </div>
       <div class="navbar-right">
-          <a href="/www/Profile/Profile.html">Lorem ipsum</a>
+          <a id="username" href="../Profile/Profile.html">Lorem ipsum</a>
           <div class="user-icon"></div>
       </div>
     </header>
     
-    <!-- Основний контент -->
+    <!-- Основной контент -->
     <div class="content">
-      <a class="list-item">
-        <div class="item-text">
-          <h3>Lorem ipsum</h3>
-          <p>Lorem ipsum</p>
-        </div>
-        <div class="item-status green">
-          <span>&#9679;</span> Lorem ipsum
-        </div>
-    </a>
-
-      <a class="list-item">
-        <div class="item-text">
-          <h3>Lorem ipsum</h3>
-          <p>Lorem ipsum</p>
-        </div>
-        <div class="item-status red">
-          <span>&#9679;</span> Lorem ipsum
-        </div>
-    </a>
-
-      <a class="list-item">
-        <div class="item-text">
-          <h3>Lorem ipsum</h3>
-          <p>Lorem ipsum</p>
-        </div>
-        <div class="item-status default">
-          <span>&#9675;</span> Lorem ipsum
-        </div>
-    </a>
-
-      <a class="list-item">
-        <div class="item-text">
-          <h3>Lorem ipsum</h3>
-          <p>Lorem ipsum</p>
-        </div>
-        <div class="item-status default">
-          <span>&#9675;</span> Lorem ipsum
-        </div>
-    </a>
-    
-      <a class="list-item" href="/www/Authentication/Sign_in/Sign_in.html">
-        <div class="item-text">
-          <h3>Lorem ipsum</h3>
-          <p>Lorem ipsum</p>
-        </div>
-        <div class="item-status default">
-          <span>&#9675;</span> Lorem ipsum
-        </div>
-    </a>
+      
     </div>
   </div>
   <!-- Футер -->
@@ -81,5 +33,63 @@
     <a href="#" class="nav-link-footer">Terms of Use</a>
     <a href="#" class="nav-link-footer">Contact</a>
   </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Обновление данных и отображение каждые 10 секунд
+      setInterval(loadAndDisplayApps, 10000);
+
+      // Сразу при загрузке страницы
+      loadAndDisplayApps();
+    });
+
+    async function loadAndDisplayApps() {
+      try {
+        const username = localStorage.getItem('Username');
+        console.log(username);
+        if (username) {
+          const userIcon = document.getElementById('username');
+          userIcon.textContent = username;
+        }
+
+        const response = await fetch('http://localhost:32548/api/m/apps', {
+          credentials: 'include'
+        });
+        const apps = await response.json();
+
+        const content = document.querySelector('.content');
+        content.innerHTML = ''; // Очищаем контент перед добавлением новых данных
+        console.log(apps);
+
+        apps.forEach(app => {
+          const a = document.createElement('a');
+          a.className = 'list-item';
+          if (app.link) a.href = app.link;
+
+          a.innerHTML = `
+            <a class="item-text" href="../Frame2/Frame2.html?deviceName=${encodeURIComponent(app.deviceName)}">
+              <h3>${app.deviceName}</h3>
+              <p>${app.description}</p>
+            </a>
+            <div class="item-status ${getStatusClass(app.isActive)}">
+              <span>${getStatusIcon(app.isActive)}</span>
+            </div>
+          `;
+
+          content.appendChild(a);
+        });
+      } catch (error) {
+        console.error('Error loading app list:', error);
+      }
+    }
+
+    function getStatusClass(isActive) {
+      return isActive ? 'green' : 'red';
+    }
+
+    function getStatusIcon(isActive) {
+      return isActive ? '&#9679;' : '&#9675;';
+    }
+  </script>
 </body>
 </html>

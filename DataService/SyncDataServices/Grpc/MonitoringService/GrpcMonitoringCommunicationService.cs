@@ -45,9 +45,61 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
         public override async Task<UserExistsResponse> UserExists(UserExistsRequest request, ServerCallContext context)
         {
             var exists = await _monitoringDbContext.Users
-                .AnyAsync(c => c.Email == request.Email); 
+                .AnyAsync(c => c.Email == request.Email);
 
             return new UserExistsResponse { Exists = exists };
+        }
+
+        public override async Task<GetUserAppsResponse> GetUserApps(GetUserAppsRequest request, ServerCallContext context)
+        {
+            var apps = await _monitoringDbContext.ClientApps
+            .Where(app => app.UserId.ToString() == request.UserId)
+            .ToListAsync();
+
+            var response = new GetUserAppsResponse();
+            foreach (var app in apps)
+            {
+                response.Apps.Add(new UserApp
+                {
+                    AppId = app.Id.ToString(),
+                    AppName = app.DeviceName,
+                    Description = app.Description,
+                    Status = app.IsActive ? "online" : "offline",
+                    Link = $"http://localhost/apps/{app.Id}"
+                });
+            }
+
+            return response;
+        }
+
+        public override async Task<GetAppStatusesResponse> GetAppStatuses(GetAppStatusesRequest request, ServerCallContext context)
+        {
+            var latestStatuses = await _monitoringDbContext.MonitoredAppStatuses
+                .Include(s => s.MonitoredApp)
+                .ThenInclude(a => a.ClientApp)
+                .Where(s =>
+                    s.MonitoredApp.ClientApp!.UserEmail.ToLower().Equals(request.UserEmail.ToLower()) &&
+                    s.MonitoredApp.ClientApp.DeviceName.ToLower().Equals(request.DeviceName.ToLower()))
+                .GroupBy(s => s.MonitoredAppId)
+                .Select(g => g.OrderByDescending(s => s.Timestamp).First())
+                .ToListAsync();
+
+            var response = new GetAppStatusesResponse();
+
+            foreach (var status in latestStatuses)
+            {
+                response.Statuses.Add(new MonitoredAppStatusDto
+                {
+                    AppName = status.MonitoredApp.Name,
+                    CpuUsagePercent = status.CpuUsagePercent,
+                    MemoryUsagePercent = status.MemoryUsagePercent,
+                    LastStarted = status.LastStarted.ToString("o"),
+                    Timestamp = status.Timestamp.ToString("o"),
+                    IsRunning = status.IsRunning
+                });
+            }
+
+            return response;
         }
     }
 }

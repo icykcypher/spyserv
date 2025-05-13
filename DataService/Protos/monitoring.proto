@@ -38,7 +38,42 @@ message UserExistsResponse {
   bool exists = 1;
 }
 
+message GetUserAppsRequest {
+  string userId = 1;
+}
+
+message UserApp {
+  string appId = 1;
+  string appName = 2;
+  string description = 3;
+  string status = 4; 
+  string link = 5;
+}
+
+message GetUserAppsResponse {
+  repeated UserApp apps = 1;
+}
+message MonitoredAppStatusDto {
+  string appName = 1;
+  double cpuUsagePercent = 2;
+  double memoryUsagePercent = 3;
+  string lastStarted = 4;
+  string timestamp = 5;
+  bool isRunning = 6;
+}
+
+message GetAppStatusesRequest {
+  string userEmail = 1;
+  string deviceName = 2;
+}
+
+message GetAppStatusesResponse {
+  repeated MonitoredAppStatusDto statuses = 1;
+}
+
 service MonitoringGrpcService {
   rpc GetLatest(GetLatestRequest) returns (MonitoringData);
   rpc UserExists(UserExistsRequest) returns (UserExistsResponse);
+  rpc GetUserApps(GetUserAppsRequest) returns (GetUserAppsResponse);
+  rpc GetAppStatuses(GetAppStatusesRequest) returns (GetAppStatusesResponse);
 }

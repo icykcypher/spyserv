@@ -27,6 +27,8 @@ namespace DataService.Data
         // Monitoring DB
         public DbSet<ClientApp> ClientApps { get; set; } = null!;
         public DbSet<Model.MonitoringModel.MonitoringData> MonitoringData { get; set; } = null!;
+        public DbSet<MonitoredApp> MonitoredApps { get; set; } = null!;
+        public DbSet<MonitoredAppStatus> MonitoredAppStatuses { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

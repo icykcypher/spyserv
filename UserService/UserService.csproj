@@ -41,4 +41,8 @@
 	<ItemGroup>
 		<Protobuf Include="Protos\authorization.proto" GrpcServices="Client" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="certs\" />
+	</ItemGroup>
 </Project>

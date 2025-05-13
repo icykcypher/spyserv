@@ -30,26 +30,41 @@
       const password = document.getElementById('signin-password').value;
 
       try {
-        const response = await fetch('http://spyserv.dev/api/u/sign-in', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                Email: email,
-                Password: password
-              })
-            });
+        const response = await fetch('http://localhost:32547/api/u/sign-in', {
+            method: 'POST',
+            credentials: 'include', 
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              Email: email,
+              Password: password
+            }),
+            redirect: 'manual'
+          });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          alert('Error: ' + (errorData.message || response.statusText));
-          return;
+            if (!response.ok) {
+              let errorText;
+              try {
+                const errorData = await response.json();
+                errorText = errorData.message || JSON.stringify(errorData);
+              } catch {
+                errorText = await response.text();
+              }
+
+              alert('Error: ' + errorText);
+              return;
+            }
+
+            const text = await response.text();
+            const data = text ? JSON.parse(text) : {};
+
+          console.log('Success:', data);
+          
+        if (data.username) {
+          localStorage.setItem('Username', data.username); 
         }
-
-        const data = await response.json();
-        console.log('Success:', data);
-        window.location.href = '/www/Frame1/Frame1.html';
+        window.location.href = '/Frame1/Frame1.html';
       } catch (error) {
         console.error('Error:', error);
         alert('Something went wrong. Please try again later.');

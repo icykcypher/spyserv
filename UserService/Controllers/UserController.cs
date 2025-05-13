@@ -27,7 +27,7 @@ namespace UserService.Controllers
         }
 
         [HttpPost("sign-up")]
-        [EnableCors("AllowAllOrigins")]
+        [EnableCors("AllowLocalhost")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
         {
             try
@@ -91,7 +91,7 @@ namespace UserService.Controllers
         //}
 
         [Authorize]
-        [EnableCors("AllowAllOrigins")]
+        [EnableCors("AllowLocalhost")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteUserById([FromRoute] Guid id)
         {
@@ -114,16 +114,21 @@ namespace UserService.Controllers
         }
 
         [HttpPost("sign-in")]
-        [EnableCors("AllowAllOrigins")]
+        [EnableCors("AllowLocalhost")]
         public async Task<IActionResult> SignIn([FromBody] SignInUserDto signInUser)
         {
             try
             {
                 var token = await _userService.Login(signInUser);
 
-                HttpContext.Response.Cookies.Append("homka-lox", token);
+                HttpContext.Response.Cookies.Append("homka-lox", token.Item1, new() 
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                });
 
-                return Ok();
+                return Ok(new {Username = token.Item2.Name});
             }
             catch (ArgumentException)
             {

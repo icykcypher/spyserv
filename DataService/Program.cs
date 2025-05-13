@@ -11,6 +11,7 @@ using DataService.AsyncDataServices.UserServiceSubscribers;
 using DataService.SyncDataServices.Grpc.MonitoringService;
 using DataService.AsyncDataServices.ClientAppServiceSubscribers;
 using DataService.AsyncDataServices.MonitoringServiceSubscibers;
+using DataService.Services;
 
 namespace DataService
 {
@@ -31,7 +32,8 @@ namespace DataService
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
-                    builder => builder.AllowAnyOrigin()
+                    builder => builder.WithOrigins("http://localhost:12345", "http://spyserv.dev", "https://localhost:12345", "https://spyserv.dev")
+                                      .AllowCredentials()
                                       .AllowAnyMethod()
                                       .AllowAnyHeader());
             });
@@ -74,7 +76,12 @@ namespace DataService
             builder.Services.AddHostedService(provider => provider.GetRequiredService<CreateClientAppSubscriberService>());
             builder.Services.AddSingleton<MonitoringDataSubscriber>();
             builder.Services.AddHostedService(provider => provider.GetRequiredService<MonitoringDataSubscriber>());
-            Console.WriteLine("--> UserSubscriberService registered as HostedService");
+            builder.Services.AddSingleton<MonitoredAppSubscriber>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<MonitoredAppSubscriber>());
+            builder.Services.AddSingleton<ClientAppStatusMonitorService>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<ClientAppStatusMonitorService>());
+
+            Console.WriteLine("--> RabbitMQ Consumers registered as HostedService");
 
             var app = builder.Build();
             try

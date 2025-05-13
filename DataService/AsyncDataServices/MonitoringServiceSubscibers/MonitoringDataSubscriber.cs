@@ -90,7 +90,16 @@ namespace DataService.AsyncDataServices.MonitoringServiceSubscibers
                         ClientApp = clientApp
                     };
 
-                    dbContext.MonitoringData.Add(entity);
+                    if (await dbContext.MonitoringData.AnyAsync(e => e.ClientApp.Id == entity.ClientApp.Id))
+                    {
+                        dbContext.MonitoringData.Update(entity);
+                    }
+                    else
+                    {
+                        dbContext.MonitoringData.Add(entity);
+                    }
+                    clientApp.IsActive = true;
+                    dbContext.ClientApps.Update(clientApp);
                     await dbContext.SaveChangesAsync(stoppingToken);
 
                     Console.WriteLine($"✅ Data saved for {message.DeviceName} - {message.UserEmail}");

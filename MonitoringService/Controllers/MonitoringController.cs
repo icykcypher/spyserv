@@ -1,18 +1,18 @@
 ﻿using Grpc.Core;
 using MonitoringService.Dto;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringService.Services;
 using System.IdentityModel.Tokens.Jwt;
 using MonitoringService.AsyncDataServices;
 using MonitoringService.SyncDataServices.Grpc;
+using Microsoft.AspNetCore.Cors;
 
 namespace MonitoringService.Controllers
 {
     [ApiController]
     [Route("api/m")]
     public class MonitoringController(
-        IMonitoringDataService service, 
+        IMonitoringDataService service,
         GrpcMonitoringCommunicationService grpc,
         MonitoringMessageBusPublisher mes,
         JwtService jwt) : ControllerBase
@@ -22,6 +22,7 @@ namespace MonitoringService.Controllers
         private readonly MonitoringMessageBusPublisher _messageBus = mes;
         private readonly JwtService _jwt = jwt;
 
+        [EnableCors("AllowAllOrigins")]
         [HttpPost("data/{deviceName}")]
         public async Task<IActionResult> PostMonitoringData([FromRoute] string deviceName, [FromBody] Dto.MonitoringData data)
         {
@@ -42,6 +43,7 @@ namespace MonitoringService.Controllers
             return Ok();
         }
 
+        [EnableCors("AllowAllOrigins")]
         [HttpGet("{deviceName}")]
         public async Task<ActionResult<MonitoringData>> GetLatestMonitoringData([FromRoute] string deviceName)
         {
@@ -77,6 +79,7 @@ namespace MonitoringService.Controllers
             }
         }
 
+        [EnableCors("AllowAllOrigins")]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] ClientAppRegisterDto dto)
         {
@@ -94,7 +97,7 @@ namespace MonitoringService.Controllers
 
             var token = _jwt.GenerateToken(clientApp);
 
-            Response.Cookies.Append("homka-lox", token, new CookieOptions
+            Response.Cookies.Append("homka-lox2", token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -104,5 +107,74 @@ namespace MonitoringService.Controllers
 
             return Ok(new { token });
         }
+
+        [EnableCors("AllowAllOrigins")]
+        [HttpGet("apps")]
+        public async Task<IActionResult> GetUserApps()
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+            var emailClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type.ToLower() == "userId".ToLower());
+            if (emailClaim == null)
+                return Unauthorized("Token does not contain a valid 'userId' claim.");
+            var userId = emailClaim.Value;
+            var apps = await _grpc.GetUserAppsAsync(userId);
+            return Ok(apps);
+        }
+
+        [EnableCors("AllowAllOrigins")]
+        [HttpGet("statuses/{deviceName}")]
+        public async Task<IActionResult> GetAppStatuses([FromRoute] string deviceName)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+
+            var emailClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type.Equals("UserEmail", StringComparison.OrdinalIgnoreCase));
+            if (emailClaim == null)
+                return Unauthorized("Token does not contain a valid 'UserEmail' claim.");
+
+            var userEmail = emailClaim.Value;
+
+            try
+            {
+                var statuses = await _grpc.GetAppStatusesAsync(userEmail, deviceName);
+                return Ok(statuses);
+            }
+            catch (RpcException ex)
+            {
+                return StatusCode(500, $"gRPC error: {ex.Status.Detail}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+        [EnableCors("AllowAllOrigins")]
+        [HttpPost("statuses/{deviceName}")]
+        public async Task<IActionResult> PostAppStatuses([FromRoute] string deviceName, [FromBody] AppStatusRequest request)
+        {
+            if (request.Statuses == null || request.Statuses.Count == 0)
+            {
+                return BadRequest("App statuses data is empty.");
+            }
+
+            try
+            {
+                await _messageBus.PublishAppStatusAsync(request.UserEmail, deviceName, request.Statuses);
+                return Ok("App statuses have been successfully submitted.");
+            }
+            catch (RpcException ex)
+            {
+                return StatusCode(500, $"gRPC error: {ex.Status.Detail}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
     }
 }
