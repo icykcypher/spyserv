@@ -74,18 +74,19 @@ namespace DataService.SyncDataServices.Grpc.MonitoringService
 
         public override async Task<GetAppStatusesResponse> GetAppStatuses(GetAppStatusesRequest request, ServerCallContext context)
         {
-            var statuses = await _monitoringDbContext.MonitoredAppStatuses
+            var latestStatuses = await _monitoringDbContext.MonitoredAppStatuses
                 .Include(s => s.MonitoredApp)
                 .ThenInclude(a => a.ClientApp)
                 .Where(s =>
                     s.MonitoredApp.ClientApp!.UserEmail.ToLower().Equals(request.UserEmail.ToLower()) &&
                     s.MonitoredApp.ClientApp.DeviceName.ToLower().Equals(request.DeviceName.ToLower()))
-                .OrderByDescending(s => s.Timestamp)
+                .GroupBy(s => s.MonitoredAppId)
+                .Select(g => g.OrderByDescending(s => s.Timestamp).First())
                 .ToListAsync();
 
             var response = new GetAppStatusesResponse();
 
-            foreach (var status in statuses)
+            foreach (var status in latestStatuses)
             {
                 response.Statuses.Add(new MonitoredAppStatusDto
                 {

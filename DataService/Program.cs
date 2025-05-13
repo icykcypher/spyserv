@@ -11,6 +11,7 @@ using DataService.AsyncDataServices.UserServiceSubscribers;
 using DataService.SyncDataServices.Grpc.MonitoringService;
 using DataService.AsyncDataServices.ClientAppServiceSubscribers;
 using DataService.AsyncDataServices.MonitoringServiceSubscibers;
+using DataService.Services;
 
 namespace DataService
 {
@@ -77,6 +78,9 @@ namespace DataService
             builder.Services.AddHostedService(provider => provider.GetRequiredService<MonitoringDataSubscriber>());
             builder.Services.AddSingleton<MonitoredAppSubscriber>();
             builder.Services.AddHostedService(provider => provider.GetRequiredService<MonitoredAppSubscriber>());
+            builder.Services.AddSingleton<ClientAppStatusMonitorService>();
+            builder.Services.AddHostedService(provider => provider.GetRequiredService<ClientAppStatusMonitorService>());
+
             Console.WriteLine("--> RabbitMQ Consumers registered as HostedService");
 
             var app = builder.Build();

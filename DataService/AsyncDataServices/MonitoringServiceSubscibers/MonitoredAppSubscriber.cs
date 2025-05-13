@@ -88,8 +88,15 @@ namespace DataService.AsyncDataServices.MonitoringServiceSubscibers
                             IsRunning = true
                         };
                         dbContext.MonitoredApps.Add(monitoredApp);
-                        await dbContext.SaveChangesAsync(stoppingToken);
                     }
+                    else
+                    {
+                        monitoredApp.IsRunning = true;
+                        dbContext.MonitoredApps.Update(monitoredApp);
+                    }
+
+                    await dbContext.SaveChangesAsync(stoppingToken);
+
 
                     var entity = new MonitoredAppStatus
                     {
@@ -109,6 +116,8 @@ namespace DataService.AsyncDataServices.MonitoringServiceSubscibers
                         {
                             dbContext.MonitoredAppStatuses.Add(entity);
                         }
+                        clientApp.IsActive = true;
+                        dbContext.ClientApps.Update(clientApp);
                         await dbContext.SaveChangesAsync(stoppingToken);
 
                         Console.WriteLine($"Data saved for {message.DeviceName} - {message.UserEmail}");
