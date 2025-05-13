@@ -21,7 +21,7 @@
       </div>
     </header>
     
-    <!-- Основний контент -->
+    <!-- Основной контент -->
     <div class="content">
       
     </div>
@@ -35,52 +35,61 @@
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      const username = localStorage.getItem('Username');
-      console.log(username)
-      if (username) {
-        const userIcon = document.getElementById('username');
-        userIcon.textContent = username;
+    document.addEventListener('DOMContentLoaded', () => {
+      // Обновление данных и отображение каждые 10 секунд
+      setInterval(loadAndDisplayApps, 10000);
+
+      // Сразу при загрузке страницы
+      loadAndDisplayApps();
+    });
+
+    async function loadAndDisplayApps() {
+      try {
+        const username = localStorage.getItem('Username');
+        console.log(username);
+        if (username) {
+          const userIcon = document.getElementById('username');
+          userIcon.textContent = username;
+        }
+
+        const response = await fetch('http://localhost:32548/api/m/apps', {
+          credentials: 'include'
+        });
+        const apps = await response.json();
+
+        const content = document.querySelector('.content');
+        content.innerHTML = ''; // Очищаем контент перед добавлением новых данных
+        console.log(apps);
+
+        apps.forEach(app => {
+          const a = document.createElement('a');
+          a.className = 'list-item';
+          if (app.link) a.href = app.link;
+
+          a.innerHTML = `
+            <a class="item-text" href="../Frame2/Frame2.html?deviceName=${encodeURIComponent(app.deviceName)}">
+              <h3>${app.deviceName}</h3>
+              <p>${app.description}</p>
+            </a>
+            <div class="item-status ${getStatusClass(app.isActive)}">
+              <span>${getStatusIcon(app.isActive)}</span>
+            </div>
+          `;
+
+          content.appendChild(a);
+        });
+      } catch (error) {
+        console.error('Error loading app list:', error);
       }
-
-      const response = await fetch('http://localhost:32548/api/m/apps', {
-        credentials: 'include'
-      });
-      const apps = await response.json();
-
-      const content = document.querySelector('.content');
-      content.innerHTML = ''; 
-      console.log(apps);
-      apps.forEach(app => {
-        const a = document.createElement('a');
-        a.className = 'list-item';
-        if (app.link) a.href = app.link;
-
-        a.innerHTML = `
-          <a class="item-text" href="../Frame2/Frame2.html?deviceName=${encodeURIComponent(app.deviceName)}">
-            <h3>${app.deviceName}</h3>
-            <p>${app.description}</p>
-          </a>
-          <div class="item-status ${getStatusClass(app.isActive)}">
-            <span>${getStatusIcon(app.isActive)}</span>
-          </div>
-        `;
-
-        content.appendChild(a);
-      });
-    } catch (error) {
-      console.error('Error loading app list:', error);
     }
-  });
 
     function getStatusClass(isActive) {
       return isActive ? 'green' : 'red';
     }
 
-  function getStatusIcon(isActive) {
-    return isActive ? '&#9679;' : '&#9675;';
-  }
+    function getStatusIcon(isActive) {
+      return isActive ? '&#9679;' : '&#9675;';
+    }
   </script>
 </body>
 </html>
