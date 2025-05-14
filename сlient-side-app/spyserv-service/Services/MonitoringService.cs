@@ -9,26 +9,28 @@ namespace spyserv_services.Services
 {
     public class MonitoringService
     {
-        private readonly Timer? _checkingTimer;
+        private readonly Timer? _monitoringTimer;
+        private readonly Timer? _statusesTimer;
         private List<MonitoredApp> _monitoredApps;
-        private readonly Dictionary<string, DateTime> _lastCheckTimes;
         private readonly CommunicationService _communicationService;
         private readonly ServicesSettings _servicesSettings;
         private readonly ResourceMonitoringSettings _resMonSettings;
+        private readonly Dictionary<string, DateTime> _lastCheckTimes;
 
-        public MonitoringService(CommunicationService communicationService)
+        public MonitoringService(AppConfig config)
         {
-            var config = LoadAppSettingsConfig(StaticClaims.PathToConfig);
             _servicesSettings = config.AppSettings ?? new ServicesSettings();
             _resMonSettings = config.ResMonSettings ?? new ResourceMonitoringSettings();
-
+            _communicationService = new CommunicationService(config);
             _monitoredApps = GetMonitoredApps();
             _lastCheckTimes = _monitoredApps.ToDictionary(app => app.Name, _ => DateTime.MinValue);
-            _communicationService = communicationService;
+
+            _monitoringTimer = new Timer(SendSystemMetrics, null, 0, 5000);
+            _statusesTimer = new Timer(SendAppsStatuses, null, 0, 3000);
 
             if (_servicesSettings.CheckApplicationsStatus)
             {
-                _checkingTimer = new Timer(MonitorApps, null, 0, _servicesSettings.MonitoringInterval * 1000);
+                var monitorTimer = new Timer(MonitorApps, null, 0, _servicesSettings.MonitoringInterval * 1000);
             }
         }
 
@@ -48,14 +50,46 @@ namespace spyserv_services.Services
 
             if (_servicesSettings.SendMonitoringData)
             {
-                await Task.Run(() => _communicationService.SendMonitoringData(GetResourceUsage()));
+                await _communicationService.SendMonitoringData(ConvertToRequest(GetResourceUsage()));
+            }
+        }
+
+        private MonitoringDataRequest ConvertToRequest(MonitoringData data)
+        {
+            return new MonitoringDataRequest
+            {
+                CpuResult = data.CpuResult,
+                MemoryResult = data.MemoryResult,
+                DiskResult = data.DiskResult
+            };
+        }
+
+        private async void SendSystemMetrics(object? state)
+        {
+            try
+            {
+                if (_resMonSettings.MonitorCpuUsage || _resMonSettings.MonitorMemoryUsage || _resMonSettings.MonitorDiskUsage)
+                {
+                    var data = new MonitoringDataRequest
+                    {
+                        CpuResult = _resMonSettings.MonitorCpuUsage ? ResourceMonitorService.GetCpuUsagePercentage() : null,
+                        MemoryResult = _resMonSettings.MonitorMemoryUsage ? ResourceMonitorService.GetMemoryUsage() : null,
+                        DiskResult = _resMonSettings.MonitorDiskUsage ? ResourceMonitorService.GetDiskUsage() : null
+                    };
+
+                    await _communicationService.SendMonitoringData(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in SendSystemMetrics: {ex.Message}");
             }
         }
 
         private List<MonitoredApp> GetMonitoredApps()
         {
             var config = LoadMonitoredAppsConfig(StaticClaims.PathToMonitoredAppsConf);
-            return config.MonitoredApps;
+            return config.MonitoredApps ?? new List<MonitoredApp>();
         }
 
         private async Task CheckApplicationStatus(MonitoredApp app)
@@ -72,7 +106,7 @@ namespace spyserv_services.Services
                 }
                 if (_servicesSettings.SendNotifications && !app.NoNotify)
                 {
-                    await Task.Run(() => _communicationService.NotifyNotWorkingApp(app));
+                    await _communicationService.NotifyNotWorkingApp(app);
                 }
             }
             else
@@ -81,15 +115,44 @@ namespace spyserv_services.Services
             }
         }
 
+        private async void SendAppsStatuses(object? state)
+        {
+            try
+            {
+                _monitoredApps = GetMonitoredApps();
+                var statuses = new List<AppStatusDto>();
+
+                foreach (var app in _monitoredApps)
+                {
+                    var status = new AppStatusDto
+                    {
+                        AppName = app.Name,
+                        IsRunning = IsAppRunning(app.Name),
+                        LastChecked = DateTime.UtcNow,
+                        CpuUsagePercent = 0, // TODO: Implement actual CPU usage measurement
+                        MemoryUsagePercent = 0 // TODO: Implement actual memory usage measurement
+                    };
+
+                    statuses.Add(status);
+                }
+
+                await _communicationService.SendAppStatuses(statuses);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error in SendAppsStatuses: {ex.Message}");
+            }
+        }
+
         private void RestartApplication(MonitoredApp app)
         {
             try
             {
-                if (!string.IsNullOrWhiteSpace(app.Name) || !string.IsNullOrWhiteSpace(app.PathToBin))
+                if (!string.IsNullOrWhiteSpace(app.PathToBin))
                 {
                     Process.Start(new ProcessStartInfo
                     {
-                        FileName = app.Name,
+                        FileName = app.PathToBin,
                         UseShellExecute = false
                     });
                     Log.Information($"Application '{app.Name}' restarted successfully.");
@@ -114,16 +177,21 @@ namespace spyserv_services.Services
             {
                 try
                 {
-                    var cpuUsage = _resMonSettings.MonitorCpuUsage ? ResourceMonitorService.GetCpuUsagePercentage() : new();
-                    var memoryUsage = _resMonSettings.MonitorMemoryUsage ? ResourceMonitorService.GetMemoryUsage() : new();
-                    var diskUsage = _resMonSettings.MonitorDiskUsage ? ResourceMonitorService.GetDiskUsage() : new();
+                    var cpuUsage = _resMonSettings.MonitorCpuUsage ? ResourceMonitorService.GetCpuUsagePercentage() : new CpuResultDto();
+                    var memoryUsage = _resMonSettings.MonitorMemoryUsage ? ResourceMonitorService.GetMemoryUsage() : new MemoryResultDto();
+                    var diskUsage = _resMonSettings.MonitorDiskUsage ? ResourceMonitorService.GetDiskUsage() : new DiskResultDto();
 
-                    return new MonitoringData { CpuResult = cpuUsage, MemoryResult = memoryUsage, DiskResult = diskUsage };
+                    return new MonitoringData
+                    {
+                        CpuResult = cpuUsage,
+                        MemoryResult = memoryUsage,
+                        DiskResult = diskUsage
+                    };
                 }
                 catch (Exception ex)
                 {
                     Log.Error($"Error retrieving system resource usage: {ex.Message}");
-                    throw;
+                    return new MonitoringData();
                 }
             }
 
@@ -142,7 +210,7 @@ namespace spyserv_services.Services
             {
                 Log.Error($"Configuration file for monitoring apps does not exists or wasn't found at {configFilePath}");
                 Environment.Exit(1);
-                throw new Exception();
+                throw new Exception("Config file not found");
             }
         }
 
@@ -151,13 +219,13 @@ namespace spyserv_services.Services
             if (File.Exists(configFilePath))
             {
                 var json = File.ReadAllText(configFilePath);
-                return JsonConvert.DeserializeObject<AppConfig>(json);
+                return JsonConvert.DeserializeObject<AppConfig>(json) ?? throw new Exception("Invalid config");
             }
             else
             {
                 Log.Error($"Configuration file appsettings.json does not exists or wasn't found at {configFilePath}");
                 Environment.Exit(1);
-                throw new Exception();
+                throw new Exception("Config file not found");
             }
         }
     }
