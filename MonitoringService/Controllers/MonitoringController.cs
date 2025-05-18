@@ -27,16 +27,7 @@ namespace MonitoringService.Controllers
         public async Task<IActionResult> PostMonitoringData([FromRoute] string deviceName, [FromBody] Dto.MonitoringData data)
         {
             if (data == null) return BadRequest("Monitoring data is null.");
-
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
-
-            var emailClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type.ToLower() == "UserEmail".ToLower());
-
-            if (emailClaim == null)
-                return Unauthorized("Token does not contain a valid 'UserEmail' claim.");
-
-            var userEmail = emailClaim.Value;
+            var userEmail = data.UserEmail;
 
             await _service.UpdateDataAsync(userEmail, deviceName, data);
 
