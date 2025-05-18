@@ -1,6 +1,4 @@
-﻿using spyserv;
-using Serilog;
-using spyserv.Core;
+﻿using Serilog;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using spyserv_services.Core.Dtos;
@@ -34,23 +32,25 @@ namespace spyserv_services.Services
             }
         }
 
-        public async void MonitorApps(object? state)
+        public void MonitorApps(object? state)
         {
             Log.Information("Started monitoring");
+            _communicationService.RegisterDevice();
 
             _monitoredApps = GetMonitoredApps();
+            
             foreach (var app in _monitoredApps)
             {
                 if ((DateTime.Now - _lastCheckTimes[app.Name]).TotalSeconds >= app.CheckingIntervalInSec)
                 {
-                    await CheckApplicationStatus(app);
+                    CheckApplicationStatus(app);
                     _lastCheckTimes[app.Name] = DateTime.Now;
                 }
             }
 
             if (_servicesSettings.SendMonitoringData)
             {
-                await _communicationService.SendMonitoringData(ConvertToRequest(GetResourceUsage()));
+                _communicationService.SendMonitoringData(GetResourceUsage());
             }
         }
 
@@ -64,7 +64,7 @@ namespace spyserv_services.Services
             };
         }
 
-        private async void SendSystemMetrics(object? state)
+        private void SendSystemMetrics(object? state)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace spyserv_services.Services
                         DiskResult = _resMonSettings.MonitorDiskUsage ? ResourceMonitorService.GetDiskUsage() : null
                     };
 
-                    await _communicationService.SendMonitoringData(data);
+                    _communicationService.SendMonitoringData(data);
                 }
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace spyserv_services.Services
             return config.MonitoredApps ?? new List<MonitoredApp>();
         }
 
-        private async Task CheckApplicationStatus(MonitoredApp app)
+        private void CheckApplicationStatus(MonitoredApp app)
         {
             Log.Information($"Checking {app.Name}");
 
@@ -100,14 +100,14 @@ namespace spyserv_services.Services
             {
                 app.IsRunning = false;
                 Log.Information($"Application {app.Name} is not running");
-                if (app.AutoRestart)
-                {
-                    await Task.Run(() => RestartApplication(app));
-                }
-                if (_servicesSettings.SendNotifications && !app.NoNotify)
-                {
-                    await _communicationService.NotifyNotWorkingApp(app);
-                }
+                // if (app.AutoRestart)
+                // {
+                //     await Task.Run(() => RestartApplication(app));
+                // }
+                // if (_servicesSettings.SendNotifications && !app.NoNotify)
+                // {
+                //     await _communicationService.NotifyNotWorkingApp(app);
+                // }
             }
             else
             {
@@ -115,7 +115,7 @@ namespace spyserv_services.Services
             }
         }
 
-        private async void SendAppsStatuses(object? state)
+        private void SendAppsStatuses(object? state)
         {
             try
             {
@@ -136,7 +136,7 @@ namespace spyserv_services.Services
                     statuses.Add(status);
                 }
 
-                await _communicationService.SendAppStatuses(statuses);
+                _communicationService.SendAppStatuses(statuses);
             }
             catch (Exception ex)
             {
@@ -171,7 +171,7 @@ namespace spyserv_services.Services
 
         private bool IsAppRunning(string appName) => Process.GetProcessesByName(appName).Any();
 
-        private MonitoringData GetResourceUsage()
+        private MonitoringDataRequest GetResourceUsage()
         {
             if (_resMonSettings.MonitorCpuUsage || _resMonSettings.MonitorMemoryUsage || _resMonSettings.MonitorDiskUsage)
             {
@@ -181,7 +181,7 @@ namespace spyserv_services.Services
                     var memoryUsage = _resMonSettings.MonitorMemoryUsage ? ResourceMonitorService.GetMemoryUsage() : new MemoryResultDto();
                     var diskUsage = _resMonSettings.MonitorDiskUsage ? ResourceMonitorService.GetDiskUsage() : new DiskResultDto();
 
-                    return new MonitoringData
+                    return new MonitoringDataRequest
                     {
                         CpuResult = cpuUsage,
                         MemoryResult = memoryUsage,
@@ -191,13 +191,14 @@ namespace spyserv_services.Services
                 catch (Exception ex)
                 {
                     Log.Error($"Error retrieving system resource usage: {ex.Message}");
-                    return new MonitoringData();
+                    return new MonitoringDataRequest();
                 }
             }
 
             Log.Warning("Resource monitoring is disabled in the configuration.");
-            return new MonitoringData();
+            return new MonitoringDataRequest();
         }
+
 
         private MonitoredAppsConfig LoadMonitoredAppsConfig(string configFilePath)
         {
@@ -209,21 +210,6 @@ namespace spyserv_services.Services
             else
             {
                 Log.Error($"Configuration file for monitoring apps does not exists or wasn't found at {configFilePath}");
-                Environment.Exit(1);
-                throw new Exception("Config file not found");
-            }
-        }
-
-        private AppConfig LoadAppSettingsConfig(string configFilePath)
-        {
-            if (File.Exists(configFilePath))
-            {
-                var json = File.ReadAllText(configFilePath);
-                return JsonConvert.DeserializeObject<AppConfig>(json) ?? throw new Exception("Invalid config");
-            }
-            else
-            {
-                Log.Error($"Configuration file appsettings.json does not exists or wasn't found at {configFilePath}");
                 Environment.Exit(1);
                 throw new Exception("Config file not found");
             }

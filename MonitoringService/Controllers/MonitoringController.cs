@@ -41,7 +41,7 @@ namespace MonitoringService.Controllers
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+                var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox2"]);
 
                 var emailClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type.ToLower() == "UserEmail".ToLower());
 
@@ -104,7 +104,7 @@ namespace MonitoringService.Controllers
         public async Task<IActionResult> GetUserApps()
         {
             var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox"]);
+            var jwtToken = handler.ReadJwtToken(HttpContext.Request.Cookies["homka-lox2"]);
             var emailClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type.ToLower() == "userId".ToLower());
             if (emailClaim == null)
                 return Unauthorized("Token does not contain a valid 'userId' claim.");
