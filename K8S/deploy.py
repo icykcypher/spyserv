@@ -3,7 +3,7 @@ import time
 import os
 
 # Path to folder with K8S manifests
-K8S_DIR = r"C:\Users\solon\source\repos\icykcypher\spyserv-backend\K8S"
+K8S_DIR = r"/home/solonitsyn/Desktop/spyserv/spyserv/K8S"
 
 # Step 1: PostgreSQL
 postgres_files = [

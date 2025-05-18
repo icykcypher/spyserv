@@ -8,7 +8,7 @@
 
     public class RegisterDeviceResponse
     {
-        public string AuthToken { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
     }
 
     public class MonitoringDataRequest
