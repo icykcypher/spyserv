@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using Newtonsoft.Json;
+using Serilog;
+using spyserv_services.Core.Dtos;
 using spyserv_services.Services;
 
 namespace spyserv_services
@@ -17,11 +19,24 @@ namespace spyserv_services
                 .CreateLogger();
 
             Log.Information("App started. Current Directory: {Directory}", AppContext.BaseDirectory);
+            var config = LoadAppSettingsConfig(StaticClaims.PathToConfig);
+            var monitoringService = new MonitoringService(config);
 
-            var communicationService = new CommunicationService();
-            var monitoringService = new MonitoringService(communicationService);
-
-            monitoringService.MonitorApps(communicationService);
+            monitoringService.MonitorApps(config);
+        }
+        private static AppConfig LoadAppSettingsConfig(string configFilePath)
+        {
+            if (File.Exists(configFilePath))
+            {
+                var json = File.ReadAllText(configFilePath);
+                return JsonConvert.DeserializeObject<AppConfig>(json) ?? throw new Exception("Invalid config");
+            }
+            else
+            {
+                Log.Error($"Configuration file appsettings.json does not exists or wasn't found at {configFilePath}");
+                Environment.Exit(1);
+                throw new Exception("Config file not found");
+            }
         }
     }
 }

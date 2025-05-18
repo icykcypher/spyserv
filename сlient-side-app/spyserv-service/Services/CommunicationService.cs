@@ -1,50 +1,185 @@
 ﻿using Serilog;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using spyserv_services.Core.Dtos;
-using spyserv.Core;
 
 namespace spyserv_services.Services
 {
     public class CommunicationService
     {
-        private readonly HttpClient _httpClient = new() { BaseAddress = new Uri("https://your-server.com/api/") }; //complete
+        private readonly HttpClient _httpClient;
+        private readonly CookieContainer _cookieContainer = new();
+        private readonly string _deviceName;
+        private readonly string _userEmail;
+        private string? _authToken;
+        private bool _isRegistered = false;
 
-        public async Task NotifyNotWorkingApp(MonitoredApp app)
+        public CommunicationService(AppConfig config)
         {
-            try
+            var handler = new HttpClientHandler
             {
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(app, Formatting.Indented), Encoding.UTF8, "application/json");
+                CookieContainer = _cookieContainer,
+                UseCookies = true,
+                AllowAutoRedirect = true
+            };
 
-                var response = await _httpClient.PostAsync("app-data", jsonContent);
+            _httpClient = new HttpClient(handler)
+            {
+                BaseAddress = new Uri("http://localhost/api/m/")
+            };
 
-                if (!response.IsSuccessStatusCode)
+            _deviceName = "Ubuntu";
+            _userEmail = config.User?.Email ?? throw new InvalidOperationException("User email not configured");
+        }
+
+        private readonly object _registrationLock = new();
+
+        public void RegisterDevice()
+        {
+            lock (_registrationLock)
+            {
+                if (_isRegistered) return;
+
+                try
                 {
-                    Log.Error($"Error while sending monitoring data: {response.Content}");
+                    var request = new RegisterDeviceRequest
+                    {
+                        UserEmail = _userEmail,
+                        DeviceName = _deviceName
+                    };
+
+                    var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                    var response = _httpClient.PostAsync("register", content).Result;
+
+                    var responseText = response.Content.ReadAsStringAsync().Result;
+                    Log.Warning(responseText);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Log.Error($"Device registration failed: {response.StatusCode}");
+                        Environment.Exit(1);
+                    }
+
+                    var result = JsonConvert.DeserializeObject<RegisterDeviceResponse>(responseText);
+                    _authToken = result?.Token;
+
+                    if (_authToken != null)
+                    {
+                        var baseUri = new Uri("http://localhost/");
+                        _cookieContainer.Add(baseUri, new Cookie("homka-lox", _authToken)
+                        {
+                            HttpOnly = true,
+                            Secure = false,
+                            Path = "/"
+                        });
+
+                        _isRegistered = true;
+                        Log.Information("Device registered successfully and cookie added");
+                    }
+                    else
+                    {
+                        Log.Error("No auth token received.");
+                        Environment.Exit(1);
+                    }
+
+                    LogCookies();
                 }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error while trying sending monitoring data: {ex.Message}");
+                catch (Exception ex)
+                {
+                    Log.Error($"Error during device registration: {ex}");
+                    Environment.Exit(1);
+                }
             }
         }
 
-        public async Task SendMonitoringData(MonitoringData dto)
+        public void SendMonitoringData(MonitoringDataRequest data)
         {
             try
             {
-                var jsonContent = new StringContent(JsonConvert.SerializeObject(dto, Formatting.Indented), Encoding.UTF8, "application/json");
+                EnsureAuthToken();
 
-                var response = await _httpClient.PostAsync("MonitoringData", jsonContent);
+                var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
 
-                if (!response.IsSuccessStatusCode)
+                int attempts = 0;
+                HttpResponseMessage? response = null;
+
+                do
                 {
-                    Log.Error($"Error while sending monitoring data: {response.Content}");
+                    response = _httpClient.PostAsync($"data/{_deviceName.ToLower()}", content).Result;
+                    if (response.IsSuccessStatusCode)
+                        break;
+
+                    attempts++;
+                }
+                while (attempts < 3);
+
+                if (response == null || !response.IsSuccessStatusCode)
+                {
+                    Log.Error($"Failed to send monitoring data after {attempts} attempts. Status: {response?.StatusCode}");
+                }
+                else
+                {
+                    Log.Information("Successfully sent monitoring data");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error while trying sending monitoring data: {ex.Message}");
+                Log.Error($"Error sending monitoring data: {ex}");
+            }
+        }
+
+        public void SendAppStatuses(List<AppStatusDto> statuses)
+        {
+            try
+            {
+                EnsureAuthToken();
+
+                var request = new AppStatusesRequest
+                {
+                    UserEmail = _userEmail,
+                    DeviceName = _deviceName,
+                    Statuses = statuses
+                };
+
+                var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+
+                var response = _httpClient.PostAsync($"statuses/{_deviceName.ToLower()}", content).Result;
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Log.Error($"Error sending app statuses: {response.StatusCode}");
+                }
+                else
+                {
+                    Log.Information("Successfully sent monitored app statuses");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error sending app statuses: {ex}");
+            }
+        }
+
+        private void EnsureAuthToken()
+        {
+            if (string.IsNullOrWhiteSpace(_authToken))
+            {
+                Log.Warning("No auth token present. Registering device again.");
+                RegisterDevice();
+            }
+        }
+
+        private void LogCookies()
+        {
+            var baseUri = new Uri("http://localhost/");
+            var cookies = _cookieContainer.GetCookies(baseUri);
+
+            Log.Warning($"Cookie count: {cookies.Count}");
+            foreach (Cookie cookie in cookies)
+            {
+                Log.Information($"Cookie received: {cookie.Name} = {cookie.Value}");
             }
         }
     }
